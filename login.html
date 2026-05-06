@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TecnoCell S.A.C. — Iniciar Sesión</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+</head>
+<body class="login-page">
+
+  <div class="login-bg">
+    <div class="bg-circle c1"></div>
+    <div class="bg-circle c2"></div>
+    <div class="bg-circle c3"></div>
+    <div class="grid-overlay"></div>
+  </div>
+
+  <div class="login-container">
+    <div class="login-brand">
+      <div class="brand-icon">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+          <rect x="4" y="2" width="20" height="32" rx="3" fill="#00D4FF" opacity="0.9"/>
+          <rect x="10" y="6" width="8" height="5" rx="1" fill="#001A2C"/>
+          <circle cx="14" cy="28" r="2" fill="#001A2C"/>
+          <rect x="18" y="8" width="12" height="18" rx="2" fill="#0099CC" opacity="0.7"/>
+          <rect x="20" y="11" width="8" height="3" rx="0.5" fill="#001A2C" opacity="0.5"/>
+          <rect x="20" y="16" width="6" height="2" rx="0.5" fill="#001A2C" opacity="0.5"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">TecnoCell</span>
+        <span class="brand-sub">S.A.C.</span>
+      </div>
+    </div>
+
+    <div class="login-card">
+      <div class="card-header">
+        <h1>Bienvenido</h1>
+        <p>Ingresa tus credenciales para continuar</p>
+      </div>
+
+      <form class="login-form" onsubmit="handleLogin(event)">
+        <div class="form-group" id="fg-user">
+          <label for="usuario">Usuario</label>
+          <div class="input-wrap">
+            <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <input type="text" id="usuario" placeholder="Ingresa tu usuario" autocomplete="username"/>
+          </div>
+          <span class="field-error" id="err-user"></span>
+        </div>
+
+        <div class="form-group" id="fg-pass">
+          <label for="contrasena">Contraseña</label>
+          <div class="input-wrap">
+            <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <input type="password" id="contrasena" placeholder="Ingresa tu contraseña" autocomplete="current-password"/>
+            <button type="button" class="toggle-pass" onclick="togglePass()">
+              <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+          <span class="field-error" id="err-pass"></span>
+        </div>
+
+        <div id="login-error" class="login-error hidden">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          Usuario o contraseña incorrectos
+        </div>
+
+        <button type="submit" class="btn-login" id="btn-submit">
+          <span class="btn-text">Iniciar Sesión</span>
+          <span class="btn-loader hidden">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="spin">
+              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+            </svg>
+          </span>
+        </button>
+      </form>
+
+      <div class="login-hint">
+        <span>Demo:</span> usuario <strong>admin</strong> · contraseña <strong>1234</strong>
+      </div>
+    </div>
+
+    <div class="login-footer">
+      © 2024 TecnoCell S.A.C. — Sistema de Gestión de Inventario
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+</body>
+</html>
