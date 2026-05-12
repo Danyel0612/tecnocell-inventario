@@ -833,5 +833,3 @@ document.querySelector('[onclick="openModal(\'modal-producto\')"]')?.addEventLis
 // ══════════════════════════════════════════════════════
 loadData();
 setDate();
-
-}
