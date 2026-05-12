@@ -384,7 +384,7 @@ async function saveProducto() {
   await cargarProductosSupabase();
   closeModal('modal-producto');
   renderProductos();
-}
+
 
 await cargarProductosSupabase();
 closeModal('modal-producto');
