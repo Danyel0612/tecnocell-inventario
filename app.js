@@ -385,11 +385,6 @@ async function saveProducto() {
   closeModal('modal-producto');
   renderProductos();
 
-
-await cargarProductosSupabase();
-closeModal('modal-producto');
-renderProductos();
-
 }
 
 function deleteProducto(id) {
