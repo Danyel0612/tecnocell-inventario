@@ -335,21 +335,31 @@ async function saveProducto() {
   const nombre = document.getElementById('mp-nombre').value.trim();
   const pcosto = parseFloat(document.getElementById('mp-pcosto').value)||0;
   const pventa = parseFloat(document.getElementById('mp-pventa').value)||0;
-  if (!codigo || !nombre) return toast('Complete los campos obligatorios', 'error');
+
+  if (!codigo || !nombre)
+    return toast('Complete los campos obligatorios', 'error');
 
   if (id) {
+
     const idx = state.productos.findIndex(p=>p.id==id);
-    state.productos[idx] = { ...state.productos[idx],
-      codigo, nombre,
+
+    state.productos[idx] = {
+      ...state.productos[idx],
+      codigo,
+      nombre,
       categoria: document.getElementById('mp-categoria').value,
-      marca:     document.getElementById('mp-marca').value.trim(),
-      stockMin:  parseInt(document.getElementById('mp-stock-min').value)||0,
-      stock:     parseInt(document.getElementById('mp-stock').value)||state.productos[idx].stock,
-      pCosto: pcosto, pVenta: pventa,
+      marca: document.getElementById('mp-marca').value.trim(),
+      stockMin: parseInt(document.getElementById('mp-stock-min').value)||0,
+      stock: parseInt(document.getElementById('mp-stock').value)||state.productos[idx].stock,
+      pCosto: pcosto,
+      pVenta: pventa,
       descripcion: document.getElementById('mp-descripcion').value.trim(),
     };
+
     toast('Producto actualizado ✅');
+
   } else {
+
     const { error } = await db.from('productos').insert({
       codigo: codigo,
       nombre: nombre,
@@ -360,22 +370,20 @@ async function saveProducto() {
       precio_costo: pcosto,
       precio_venta: pventa,
       descripcion: document.getElementById('mp-descripcion').value.trim(),
-      activo: true});
+      activo: true
+    });
 
-if (error) {
-  console.error(error);
-  return toast('Error al guardar en Supabase', 'error');
-}
+    if (error) {
+      console.error(error);
+      return toast('Error al guardar en Supabase', 'error');
+    }
 
-toast('Producto guardado en Supabase ✅');
-function emptyRow(cols, text) {
-  return `
-    <tr>
-      <td colspan="${cols}" class="text-muted" style="text-align:center; padding:20px;">
-        ${text}
-      </td>
-    </tr>
-  `;
+    toast('Producto guardado en Supabase ✅');
+  }
+
+  await cargarProductosSupabase();
+  closeModal('modal-producto');
+  renderProductos();
 }
 
 await cargarProductosSupabase();
