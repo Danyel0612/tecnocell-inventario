@@ -330,65 +330,71 @@ function editProducto(id) {
 }
 
 async function saveProducto() {
-  const id     = document.getElementById('mp-id').value;
+  const id = document.getElementById('mp-id').value;
   const codigo = document.getElementById('mp-codigo').value.trim();
   const nombre = document.getElementById('mp-nombre').value.trim();
-  const pcosto = parseFloat(document.getElementById('mp-pcosto').value)||0;
-  const pventa = parseFloat(document.getElementById('mp-pventa').value)||0;
-  if (!codigo || !nombre) return toast('Complete los campos obligatorios', 'error');
+  const pcosto = parseFloat(document.getElementById('mp-pcosto').value) || 0;
+  const pventa = parseFloat(document.getElementById('mp-pventa').value) || 0;
+
+  if (!codigo || !nombre) {
+    return toast('Complete los campos obligatorios', 'error');
+  }
+
+  const productoData = {
+    codigo,
+    nombre,
+    categoria: document.getElementById('mp-categoria').value,
+    marca: document.getElementById('mp-marca').value.trim(),
+    stock: parseInt(document.getElementById('mp-stock').value) || 0,
+    stock_min: parseInt(document.getElementById('mp-stock-min').value) || 0,
+    precio_costo: pcosto,
+    precio_venta: pventa,
+    descripcion: document.getElementById('mp-descripcion').value.trim(),
+    activo: true
+  };
+
+  let error;
 
   if (id) {
-    const idx = state.productos.findIndex(p=>p.id==id);
-    state.productos[idx] = { ...state.productos[idx],
-      codigo, nombre,
-      categoria: document.getElementById('mp-categoria').value,
-      marca:     document.getElementById('mp-marca').value.trim(),
-      stockMin:  parseInt(document.getElementById('mp-stock-min').value)||0,
-      stock:     parseInt(document.getElementById('mp-stock').value)||state.productos[idx].stock,
-      pCosto: pcosto, pVenta: pventa,
-      descripcion: document.getElementById('mp-descripcion').value.trim(),
-    };
-    toast('Producto actualizado ✅');
+    const result = await db
+      .from('productos')
+      .update(productoData)
+      .eq('id', id);
+
+    error = result.error;
   } else {
-    const { error } = await db.from('productos').insert({
-      codigo: codigo,
-      nombre: nombre,
-      categoria: document.getElementById('mp-categoria').value,
-      marca: document.getElementById('mp-marca').value.trim(),
-      stock: parseInt(document.getElementById('mp-stock').value) || 0,
-      stock_min: parseInt(document.getElementById('mp-stock-min').value) || 0,
-      precio_costo: pcosto,
-      precio_venta: pventa,
-      descripcion: document.getElementById('mp-descripcion').value.trim(),
-      activo: true});
+    const result = await db
+      .from('productos')
+      .insert(productoData);
 
-if (error) {
-  console.error(error);
-  return toast('Error al guardar en Supabase', 'error');
+    error = result.error;
+  }
+
+  if (error) {
+    console.error(error);
+    return toast(error.message || 'Error al guardar en Supabase', 'error');
+  }
+
+  toast(id ? 'Producto actualizado ✅' : 'Producto guardado ✅');
+  closeModal('modal-producto');
+  await cargarProductosSupabase();
 }
 
-toast('Producto guardado en Supabase ✅');
-function emptyRow(cols, text) {
-  return `
-    <tr>
-      <td colspan="${cols}" class="text-muted" style="text-align:center; padding:20px;">
-        ${text}
-      </td>
-    </tr>
-  `;
-}
-
-await cargarProductosSupabase();
-closeModal('modal-producto');
-renderProductos();
-
-}
-
-function deleteProducto(id) {
+async function deleteProducto(id) {
   if (!confirm('¿Eliminar este producto?')) return;
-  const idx = state.productos.findIndex(p=>p.id===id);
-  state.productos[idx].activo = false;
-  saveData(); renderProductos(); toast('Producto eliminado');
+
+  const { error } = await db
+    .from('productos')
+    .update({ activo: false })
+    .eq('id', id);
+
+  if (error) {
+    console.error(error);
+    return toast('Error al eliminar producto', 'error');
+  }
+
+  toast('Producto eliminado ✅');
+  await cargarProductosSupabase();
 }
 
 // ══════════════════════════════════════════════════════
@@ -834,4 +840,5 @@ document.querySelector('[onclick="openModal(\'modal-producto\')"]')?.addEventLis
 loadData();
 setDate();
 
-}
+
+
