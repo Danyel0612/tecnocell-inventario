@@ -168,7 +168,7 @@ async function doLogin() {
     toast('No se pudo cargar Supabase, usando datos locales', 'error');
   }
 
-  showPage('productos');
+  showPage('dashboard');
 }
 
 // ══════════════════════════════════════════════════════
@@ -187,21 +187,6 @@ const PAGE_META = {
 };
 
 function showPage(page) {
-    const MODULOS_BLOQUEADOS = [
-    'dashboard',
-    'entradas',
-    'salidas',
-    'movimientos',
-    'proveedores',
-    'usuarios',
-    'alertas',
-    'reportes'
-  ];
-
-  if (MODULOS_BLOQUEADOS.includes(page)) {
-    toast('Módulo no disponible para esta presentación', 'error');
-    return;
-  }
   document.querySelectorAll('[id^="page-"]').forEach(el => el.classList.add('hidden'));
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
   document.getElementById('page-'+page).classList.remove('hidden');
