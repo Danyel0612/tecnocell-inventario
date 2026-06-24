@@ -53,13 +53,21 @@ function saveData() {
   localStorage.setItem('tc_state', JSON.stringify(state));
 }
 
+const DEMO_CLIENTES = [
+  { id:1, doc:'72341122',    nombre:'María Gonzáles',           tel:'987654321', email:'maria.g@mail.com',      dir:'Surco, Lima',  activo:true },
+  { id:2, doc:'20543219876', nombre:'Soluciones Digitales EIRL',tel:'01-456789', email:'compras@soldigital.pe', dir:'San Isidro',   activo:true },
+];
+
 function loadData() {
   const raw = localStorage.getItem('tc_state');
   if (raw) {
     state = JSON.parse(raw);
+    if (!state.clientes) state.clientes = DEMO_CLIENTES;
+    if (!state.usuarios || state.usuarios.length === 0) state.usuarios = DEFAULT_USERS;
   } else {
     state.productos   = DEMO_PRODUCTOS;
     state.proveedores = DEMO_PROVEEDORES;
+    state.clientes    = DEMO_CLIENTES;
     state.usuarios    = DEFAULT_USERS;
     state.entradas    = [];
     state.salidas     = [];
@@ -67,10 +75,8 @@ function loadData() {
     generateDemoMovimientos();
     saveData();
   }
-  // Asegurar usuarios por defecto
-  if (!state.usuarios || state.usuarios.length === 0) {
-  state.usuarios = DEFAULT_USERS;
-  }
+  // Migrar campo 'tel' en usuarios existentes
+  state.usuarios = state.usuarios.map(u => ({ tel: '', ...u }));
 }
 async function cargarProductosSupabase() {
 
@@ -159,16 +165,41 @@ async function doLogin() {
   document.getElementById('sf-role').textContent = user.rol;
   document.getElementById('ua').textContent = user.nombre.charAt(0).toUpperCase();
 
+  applyRoleRestrictions(user.rol);
   setDate();
 
   try {
     await cargarProductosSupabase();
   } catch (e) {
     console.error(e);
-    toast('No se pudo cargar Supabase, usando datos locales', 'error');
+    toast('No se pudo cargar Supabase, usando datos locales', 'warn');
   }
 
   showPage('dashboard');
+}
+
+function doLogout() {
+  if (!confirm('¿Cerrar sesión?')) return;
+  state.currentUser = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-error').style.display = 'none';
+}
+
+// Control de acceso por rol
+function applyRoleRestrictions(rol) {
+  const permisos = {
+    'Administrador': ['dashboard','productos','entradas','salidas','movimientos','clientes','proveedores','usuarios','alertas','reportes'],
+    'Almacenero':    ['dashboard','productos','entradas','salidas','movimientos','alertas'],
+    'Vendedor':      ['dashboard','productos','salidas','movimientos','clientes','alertas'],
+  };
+  const permitidos = permisos[rol] || ['dashboard'];
+  document.querySelectorAll('.nav-item[id^="nav-"]').forEach(item => {
+    const page = item.id.replace('nav-', '');
+    item.style.display = permitidos.includes(page) ? '' : 'none';
+  });
 }
 
 // ══════════════════════════════════════════════════════
@@ -607,72 +638,308 @@ function deleteProveedor(id) {
 // ══════════════════════════════════════════════════════
 // USUARIOS
 // ══════════════════════════════════════════════════════
-function renderUsuarios() {
+function renderUsuarios(q = '') {
+  const rolFiltro = document.getElementById('filtro-rol-usuario')?.value || '';
+  let lista = state.usuarios.slice();
+  if (q) lista = lista.filter(u =>
+    (u.username + u.nombre + u.email + (u.dni || '')).toLowerCase().includes(q.toLowerCase()));
+  if (rolFiltro) lista = lista.filter(u => u.rol === rolFiltro);
+
+  const esAdmin = state.currentUser?.rol === 'Administrador';
   const tbody = document.getElementById('tbl-usuarios');
-  tbody.innerHTML = state.usuarios.map(u=>`
-    <tr>
-      <td class="font-mono text-accent">${u.username}</td>
-      <td>${u.nombre}</td>
+
+  tbody.innerHTML = lista.length ? lista.map(u => {
+    const inicial = u.nombre.charAt(0).toUpperCase();
+    const rolColors = { 'Administrador': 'var(--accent)', 'Almacenero': 'var(--accent3)', 'Vendedor': 'var(--warn)' };
+    const avatarColor = rolColors[u.rol] || 'var(--accent2)';
+    const esMismoUser = u.id === state.currentUser?.id;
+    return `
+    <tr style="${!u.activo ? 'opacity:0.55' : ''}">
+      <td>
+        <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,${avatarColor},var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff">${inicial}</div>
+      </td>
+      <td>
+        <span class="font-mono text-accent" style="font-size:12px">${u.username}</span>
+        ${esMismoUser ? '<span class="pill pill-info" style="font-size:9px;margin-left:6px;">Tú</span>' : ''}
+      </td>
+      <td><strong>${u.nombre}</strong></td>
       <td>${rolPill(u.rol)}</td>
       <td>${u.email}</td>
-      <td><span class="pill ${u.activo?'pill-success':'pill-danger'}">${u.activo?'Activo':'Inactivo'}</span></td>
-      <td>
-        <button class="btn btn-sm btn-ghost" onclick="editUsuario(${u.id})">✏</button>
-        ${u.username!=='admin'?`<button class="btn btn-sm btn-danger" onclick="toggleUsuario(${u.id})" style="margin-left:4px">${u.activo?'Deshabilitar':'Habilitar'}</button>`:''}
+      <td class="font-mono text-muted" style="font-size:12px">${u.dni || '—'}</td>
+      <td><span class="pill ${u.activo ? 'pill-success' : 'pill-danger'}">${u.activo ? 'Activo' : 'Inactivo'}</span></td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-sm btn-ghost" onclick="editUsuario(${u.id})" title="Editar">✏ Editar</button>
+        ${esAdmin && u.username !== 'admin' ? `
+          <button class="btn btn-sm ${u.activo ? 'btn-warn' : 'btn-success'}" onclick="toggleUsuario(${u.id})" style="margin-left:4px">
+            ${u.activo ? '⛔ Deshab.' : '✅ Habilitar'}
+          </button>` : ''}
+        ${esAdmin && u.username !== 'admin' && !esMismoUser ? `
+          <button class="btn btn-sm btn-danger" onclick="deleteUsuario(${u.id})" style="margin-left:4px" title="Eliminar">🗑</button>` : ''}
       </td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('') : emptyRow(8, '🔍 No se encontraron usuarios');
 }
 
 function rolPill(rol) {
-  const map = { 'Administrador':'pill-info', 'Almacenero':'pill-success', 'Vendedor':'pill-warn' };
-  return `<span class="pill ${map[rol]||'pill-gray'}">${rol}</span>`;
+  const map = { 'Administrador': 'pill-info', 'Almacenero': 'pill-success', 'Vendedor': 'pill-warn' };
+  return `<span class="pill ${map[rol] || 'pill-gray'}">${rol}</span>`;
+}
+
+function openModal_Usuario_new() {
+  document.getElementById('mu-title').textContent = 'Nuevo Usuario';
+  document.getElementById('mu-id').value = '';
+  clearForm(['mu-username','mu-nombre','mu-email','mu-pass','mu-pass2','mu-dni','mu-tel']);
+  document.getElementById('mu-rol').value = 'Vendedor';
+  document.getElementById('mu-edit-note').classList.add('hidden');
+  document.getElementById('mu-avatar-preview').textContent = '?';
+  document.getElementById('mu-nombre-preview').textContent = 'Nuevo Usuario';
+  document.getElementById('mu-rol-preview').textContent = 'Vendedor';
+  document.getElementById('mu-username').readOnly = false;
+  openModal('modal-usuario');
 }
 
 function editUsuario(id) {
-  const u = state.usuarios.find(x=>x.id===id);
+  const u = state.usuarios.find(x => x.id === id);
   if (!u) return;
-  document.getElementById('mu-title').textContent    = 'Editar Usuario';
-  document.getElementById('mu-id').value             = u.id;
-  document.getElementById('mu-username').value       = u.username;
-  document.getElementById('mu-nombre').value         = u.nombre;
-  document.getElementById('mu-rol').value            = u.rol;
-  document.getElementById('mu-email').value          = u.email;
-  document.getElementById('mu-pass').value           = u.password;
-  document.getElementById('mu-dni').value            = u.dni||'';
+  document.getElementById('mu-title').textContent  = 'Editar Usuario';
+  document.getElementById('mu-id').value           = u.id;
+  document.getElementById('mu-username').value     = u.username;
+  document.getElementById('mu-nombre').value       = u.nombre;
+  document.getElementById('mu-rol').value          = u.rol;
+  document.getElementById('mu-email').value        = u.email;
+  document.getElementById('mu-pass').value         = '';
+  document.getElementById('mu-pass2').value        = '';
+  document.getElementById('mu-dni').value          = u.dni || '';
+  document.getElementById('mu-tel').value          = u.tel || '';
+  document.getElementById('mu-edit-note').classList.remove('hidden');
+  document.getElementById('mu-username').readOnly  = (u.username === 'admin');
+  document.getElementById('mu-avatar-preview').textContent   = u.nombre.charAt(0).toUpperCase();
+  document.getElementById('mu-nombre-preview').textContent   = u.nombre;
+  document.getElementById('mu-rol-preview').textContent      = u.rol;
   openModal('modal-usuario');
 }
 
 function saveUsuario() {
   const id       = document.getElementById('mu-id').value;
-  const username = document.getElementById('mu-username').value.trim();
+  const username = document.getElementById('mu-username').value.trim().replace(/\s+/g, '_');
   const nombre   = document.getElementById('mu-nombre').value.trim();
   const rol      = document.getElementById('mu-rol').value;
   const email    = document.getElementById('mu-email').value.trim();
-  const password = document.getElementById('mu-pass').value.trim();
-  if (!username || !nombre || !email || !password) return toast('Complete todos los campos', 'error');
+  const pass     = document.getElementById('mu-pass').value;
+  const pass2    = document.getElementById('mu-pass2').value;
+  const dni      = document.getElementById('mu-dni').value.trim();
+  const tel      = document.getElementById('mu-tel').value.trim();
 
+  if (!username || !nombre || !email) return toast('Complete los campos obligatorios (usuario, nombre, correo)', 'error');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast('Correo electrónico inválido', 'error');
+  if (dni && !/^\d{8}$/.test(dni)) return toast('El DNI debe tener exactamente 8 dígitos', 'error');
+
+  let finalPassword;
   if (id) {
-    const idx = state.usuarios.findIndex(u=>u.id==id);
-    state.usuarios[idx] = { ...state.usuarios[idx], username, nombre, rol, email, password, dni: document.getElementById('mu-dni').value };
+    // Edición: contraseña es opcional
+    if (pass || pass2) {
+      if (pass.length < 4) return toast('La contraseña debe tener mínimo 4 caracteres', 'error');
+      if (pass !== pass2) return toast('Las contraseñas no coinciden ❌', 'error');
+      finalPassword = pass;
+    } else {
+      finalPassword = state.usuarios.find(u => u.id == id)?.password;
+    }
+    const dupUser = state.usuarios.find(u => u.username === username && u.id != id);
+    if (dupUser) return toast('Ese nombre de usuario ya está en uso', 'error');
+    const idx = state.usuarios.findIndex(u => u.id == id);
+    state.usuarios[idx] = { ...state.usuarios[idx], username, nombre, rol, email, password: finalPassword, dni, tel };
+    // Actualizar sidebar si es el usuario logueado
+    if (state.currentUser?.id == id) {
+      state.currentUser = state.usuarios[idx];
+      document.getElementById('sf-name').textContent = nombre;
+      document.getElementById('sf-role').textContent = rol;
+      document.getElementById('ua').textContent = nombre.charAt(0).toUpperCase();
+    }
     toast('Usuario actualizado ✅');
   } else {
-    if (state.usuarios.find(u=>u.username===username)) return toast('Ese nombre de usuario ya existe', 'error');
+    if (!pass) return toast('La contraseña es obligatoria', 'error');
+    if (pass.length < 4) return toast('La contraseña debe tener mínimo 4 caracteres', 'error');
+    if (pass !== pass2) return toast('Las contraseñas no coinciden ❌', 'error');
+    if (state.usuarios.find(u => u.username === username)) return toast('Ese nombre de usuario ya existe', 'error');
+    finalPassword = pass;
     state.usuarios.push({
-      id: Math.max(0,...state.usuarios.map(u=>u.id))+1,
-      username, nombre, rol, email, password, dni: document.getElementById('mu-dni').value, activo: true
+      id: Math.max(0, ...state.usuarios.map(u => u.id)) + 1,
+      username, nombre, rol, email, password: finalPassword, dni, tel, activo: true
     });
     toast('Usuario creado ✅');
   }
-  saveData(); closeModal('modal-usuario'); renderUsuarios();
+  saveData();
+  closeModal('modal-usuario');
+  renderUsuarios();
 }
 
 function toggleUsuario(id) {
-  const u = state.usuarios.find(x=>x.id===id);
+  const u = state.usuarios.find(x => x.id === id);
   if (!u) return;
+  if (u.username === 'admin') return toast('No se puede deshabilitar al administrador principal', 'error');
   u.activo = !u.activo;
-  saveData(); renderUsuarios();
-  toast(u.activo ? 'Usuario habilitado' : 'Usuario deshabilitado');
+  saveData();
+  renderUsuarios();
+  toast(u.activo ? '✅ Usuario habilitado' : '⛔ Usuario deshabilitado');
 }
+
+function deleteUsuario(id) {
+  const u = state.usuarios.find(x => x.id === id);
+  if (!u) return;
+  if (u.username === 'admin') return toast('No se puede eliminar al administrador principal', 'error');
+  if (u.id === state.currentUser?.id) return toast('No puedes eliminarte a ti mismo', 'error');
+  if (!confirm(`¿Eliminar al usuario "${u.nombre}" definitivamente? Esta acción no se puede deshacer.`)) return;
+  state.usuarios = state.usuarios.filter(x => x.id !== id);
+  saveData();
+  renderUsuarios();
+  toast('Usuario eliminado');
+}
+
+// ── UTILIDADES USUARIOS ──────────────────────────────
+function togglePassVis(inputId, btnId) {
+  const input = document.getElementById(inputId);
+  const btn   = document.getElementById(btnId);
+  if (!input) return;
+  if (input.type === 'password') {
+    input.type = 'text';
+    if (btn) btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    if (btn) btn.textContent = '👁';
+  }
+}
+
+function updateUsuarioPreview() {
+  const nombre = document.getElementById('mu-nombre')?.value || '';
+  const rol    = document.getElementById('mu-rol')?.value || 'Selecciona un rol';
+  const inicial = nombre.trim() ? nombre.trim().charAt(0).toUpperCase() : '?';
+  const el = document.getElementById('mu-avatar-preview');
+  if (el) el.textContent = inicial;
+  const np = document.getElementById('mu-nombre-preview');
+  if (np) np.textContent = nombre || 'Nuevo Usuario';
+  const rp = document.getElementById('mu-rol-preview');
+  if (rp) rp.textContent = rol;
+}
+
+// ── MI PERFIL ────────────────────────────────────────
+function openMiPerfil() {
+  const u = state.currentUser;
+  if (!u) return;
+  document.getElementById('perfil-avatar').textContent        = u.nombre.charAt(0).toUpperCase();
+  document.getElementById('perfil-nombre-header').textContent = u.nombre;
+  document.getElementById('perfil-rol-header').innerHTML      = rolPill(u.rol);
+  document.getElementById('perfil-user-header').textContent   = '@' + u.username;
+  document.getElementById('perfil-username').value            = u.username;
+  document.getElementById('perfil-rol').value                 = u.rol;
+  document.getElementById('perfil-nombre').value              = u.nombre;
+  document.getElementById('perfil-dni').value                 = u.dni || '';
+  document.getElementById('perfil-email').value               = u.email;
+  document.getElementById('perfil-tel').value                 = u.tel || '';
+  clearForm(['perfil-pass-actual','perfil-pass-nueva','perfil-pass-confirmar']);
+  const bar = document.getElementById('pass-strength-bar');
+  const lbl = document.getElementById('pass-strength-label');
+  if (bar) { bar.style.width = '0%'; bar.style.background = 'transparent'; }
+  if (lbl) lbl.textContent = '';
+  switchPerfilTab('datos');
+  openModal('modal-mi-perfil');
+}
+
+function switchPerfilTab(tab) {
+  const tabDatos = document.getElementById('perfil-tab-datos');
+  const tabPass  = document.getElementById('perfil-tab-pass');
+  const btnDatos = document.getElementById('tab-datos');
+  const btnPass  = document.getElementById('tab-pass');
+  if (tab === 'datos') {
+    tabDatos.classList.remove('hidden');
+    tabPass.classList.add('hidden');
+    btnDatos.style.cssText += ';background:var(--card);color:var(--text)';
+    btnPass.style.cssText  += ';background:transparent;color:var(--text2)';
+  } else {
+    tabDatos.classList.add('hidden');
+    tabPass.classList.remove('hidden');
+    btnDatos.style.cssText += ';background:transparent;color:var(--text2)';
+    btnPass.style.cssText  += ';background:var(--card);color:var(--text)';
+    const passNueva = document.getElementById('perfil-pass-nueva');
+    if (passNueva) passNueva.addEventListener('input', updatePasswordStrength);
+  }
+}
+
+function savePerfilDatos() {
+  const u = state.currentUser;
+  if (!u) return;
+  const nombre = document.getElementById('perfil-nombre').value.trim();
+  const email  = document.getElementById('perfil-email').value.trim();
+  const dni    = document.getElementById('perfil-dni').value.trim();
+  const tel    = document.getElementById('perfil-tel').value.trim();
+
+  if (!nombre || !email) return toast('Nombre y correo son obligatorios', 'error');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast('Correo electrónico inválido', 'error');
+  if (dni && !/^\d{8}$/.test(dni)) return toast('El DNI debe tener exactamente 8 dígitos', 'error');
+
+  const idx = state.usuarios.findIndex(x => x.id === u.id);
+  state.usuarios[idx] = { ...state.usuarios[idx], nombre, email, dni, tel };
+  state.currentUser = state.usuarios[idx];
+
+  document.getElementById('sf-name').textContent = nombre;
+  document.getElementById('ua').textContent = nombre.charAt(0).toUpperCase();
+  document.getElementById('perfil-nombre-header').textContent = nombre;
+  document.getElementById('perfil-avatar').textContent = nombre.charAt(0).toUpperCase();
+
+  saveData();
+  toast('✅ Perfil actualizado correctamente');
+}
+
+function savePerfilPassword() {
+  const u = state.currentUser;
+  if (!u) return;
+  const actual    = document.getElementById('perfil-pass-actual').value;
+  const nueva     = document.getElementById('perfil-pass-nueva').value;
+  const confirmar = document.getElementById('perfil-pass-confirmar').value;
+
+  if (!actual || !nueva || !confirmar) return toast('Completa todos los campos de contraseña', 'error');
+  if (actual !== u.password) return toast('❌ La contraseña actual es incorrecta', 'error');
+  if (nueva.length < 4) return toast('La nueva contraseña debe tener mínimo 4 caracteres', 'error');
+  if (nueva !== confirmar) return toast('❌ Las nuevas contraseñas no coinciden', 'error');
+  if (nueva === actual) return toast('La nueva contraseña debe ser diferente a la actual', 'warn');
+
+  const idx = state.usuarios.findIndex(x => x.id === u.id);
+  state.usuarios[idx].password = nueva;
+  state.currentUser = state.usuarios[idx];
+  clearForm(['perfil-pass-actual','perfil-pass-nueva','perfil-pass-confirmar']);
+  updatePasswordStrength();
+  saveData();
+  toast('🔑 Contraseña cambiada exitosamente');
+}
+
+function updatePasswordStrength() {
+  const pass  = document.getElementById('perfil-pass-nueva')?.value || '';
+  const bar   = document.getElementById('pass-strength-bar');
+  const label = document.getElementById('pass-strength-label');
+  if (!bar || !label) return;
+  let score = 0;
+  if (pass.length >= 4) score++;
+  if (pass.length >= 8) score++;
+  if (/[A-Z]/.test(pass)) score++;
+  if (/[0-9]/.test(pass)) score++;
+  if (/[^A-Za-z0-9]/.test(pass)) score++;
+  const levels = [
+    { pct: '0%',   color: 'transparent',    text: '' },
+    { pct: '20%',  color: 'var(--danger)',   text: '🟥 Muy débil' },
+    { pct: '45%',  color: 'var(--warn)',     text: '🟧 Débil' },
+    { pct: '65%',  color: '#ffcc00',         text: '🟨 Moderada' },
+    { pct: '85%',  color: 'var(--accent3)',  text: '🟩 Fuerte' },
+    { pct: '100%', color: 'var(--accent3)',  text: '🟩 Muy fuerte' },
+  ];
+  const lvl = levels[Math.min(score, 5)];
+  bar.style.width      = pass ? lvl.pct : '0%';
+  bar.style.background = lvl.color;
+  label.textContent    = lvl.text;
+}
+
+      </td>
+    </tr>`).join('');
+}
+
 
 // ══════════════════════════════════════════════════════
 // ALERTAS
@@ -805,18 +1072,21 @@ window.openModal = function(id) {
       document.getElementById('mprov-title').textContent='Nuevo Proveedor';
     }
   }
-  if (id==='modal-usuario') {
-    if (!document.getElementById('mu-id').value) {
-      clearForm(['mu-id','mu-username','mu-nombre','mu-email','mu-pass','mu-dni']);
-      document.getElementById('mu-title').textContent='Nuevo Usuario';
-    }
-  }
+
   origOpenModal(id);
 };
 
 // Botón nuevo producto
 document.querySelector('[onclick="openModal(\'modal-producto\')"]')?.addEventListener('click', ()=>{
   document.getElementById('mp-id').value='';
+});
+
+// ── Enter key en login ────────────────────────────────
+document.getElementById('login-pass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+document.getElementById('login-user').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('login-pass').focus();
 });
 
 // ══════════════════════════════════════════════════════

@@ -52,7 +52,7 @@
       <div class="nav-item" onclick="showPage('proveedores')" id="nav-proveedores">
         <span class="nav-icon">🏢</span> Proveedores
       </div>
-      <div class="nav-item" onclick="showPage('usuarios')" id="nav-usuarios">
+      <div class="nav-item" onclick="showPage('usuarios')" id="nav-usuarios" data-rol-required="Administrador">
         <span class="nav-icon">👤</span> Usuarios
       </div>
       <div class="nav-item" onclick="showPage('alertas')" id="nav-alertas">
@@ -70,6 +70,7 @@
           <div class="user-name" id="sf-name">Administrador</div>
           <div class="user-role" id="sf-role">Admin</div>
         </div>
+        <button class="logout-btn" onclick="openMiPerfil()" title="Mi Perfil" style="font-size:15px">👤</button>
         <button class="logout-btn" onclick="doLogout()" title="Cerrar sesión">⏏</button>
       </div>
     </div>
@@ -223,11 +224,18 @@
       <!-- ══════ USUARIOS ══════ -->
       <div id="page-usuarios" class="hidden">
         <div class="toolbar">
-          <button class="btn btn-primary" onclick="openModal('modal-usuario')">+ Nuevo Usuario</button>
+          <input type="text" class="search-input" id="search-usuarios" placeholder="🔍 Buscar usuario..." oninput="renderUsuarios(this.value)">
+          <select class="sel" id="filtro-rol-usuario" onchange="renderUsuarios()">
+            <option value="">Todos los roles</option>
+            <option>Administrador</option>
+            <option>Almacenero</option>
+            <option>Vendedor</option>
+          </select>
+          <button class="btn btn-primary" onclick="openModal_Usuario_new()">+ Nuevo Usuario</button>
         </div>
         <div class="section-card">
           <table class="tbl">
-            <thead><tr><th>Usuario</th><th>Nombre</th><th>Rol</th><th>Correo</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <thead><tr><th>Avatar</th><th>Usuario</th><th>Nombre Completo</th><th>Rol</th><th>Correo</th><th>DNI</th><th>Estado</th><th>Acciones</th></tr></thead>
             <tbody id="tbl-usuarios"></tbody>
           </table>
         </div>
@@ -520,40 +528,167 @@
     </div>
     <div class="modal-body">
       <input type="hidden" id="mu-id">
+
+      <!-- Avatar preview -->
+      <div style="display:flex; align-items:center; gap:16px; margin-bottom:20px; padding:16px; background:var(--bg2); border-radius:12px; border:1px solid var(--border)">
+        <div id="mu-avatar-preview" style="width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#fff;flex-shrink:0;">A</div>
+        <div>
+          <div style="font-weight:600;font-size:14px" id="mu-nombre-preview">Nuevo Usuario</div>
+          <div style="font-size:12px;color:var(--text3)" id="mu-rol-preview">Selecciona un rol</div>
+        </div>
+      </div>
+
       <div class="form-grid">
         <div class="form-group">
-          <label>Usuario *</label>
-          <input type="text" id="mu-username" placeholder="nombre_usuario">
+          <label>Usuario * <span style="color:var(--text3);font-size:10px;font-weight:400">(sin espacios)</span></label>
+          <input type="text" id="mu-username" placeholder="nombre_usuario" oninput="updateUsuarioPreview()">
         </div>
         <div class="form-group">
           <label>Nombre Completo *</label>
-          <input type="text" id="mu-nombre" placeholder="Apellidos y Nombres">
+          <input type="text" id="mu-nombre" placeholder="Apellidos y Nombres" oninput="updateUsuarioPreview()">
         </div>
         <div class="form-group">
           <label>Rol *</label>
-          <select id="mu-rol">
+          <select id="mu-rol" onchange="updateUsuarioPreview()">
             <option>Administrador</option>
             <option>Almacenero</option>
             <option>Vendedor</option>
           </select>
         </div>
         <div class="form-group">
-          <label>Correo *</label>
+          <label>DNI <span style="color:var(--text3);font-size:10px">(8 dígitos)</span></label>
+          <input type="text" id="mu-dni" placeholder="12345678" maxlength="8">
+        </div>
+        <div class="form-group">
+          <label>Correo electrónico *</label>
           <input type="email" id="mu-email" placeholder="correo@empresa.com">
         </div>
         <div class="form-group">
-          <label>Contraseña *</label>
-          <input type="password" id="mu-pass" placeholder="Contraseña">
+          <label>Teléfono</label>
+          <input type="text" id="mu-tel" placeholder="9xxxxxxxx" maxlength="9">
         </div>
-        <div class="form-group">
-          <label>DNI</label>
-          <input type="text" id="mu-dni" placeholder="12345678" maxlength="8">
+        <div class="form-group" id="mu-pass-group">
+          <label>Contraseña * <span style="color:var(--text3);font-size:10px">(mín. 4 caracteres)</span></label>
+          <div style="position:relative">
+            <input type="password" id="mu-pass" placeholder="Contraseña" style="width:100%;padding-right:40px">
+            <button type="button" onclick="togglePassVis('mu-pass','mu-pass-eye')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px" id="mu-pass-eye">👁</button>
+          </div>
         </div>
+        <div class="form-group" id="mu-pass2-group">
+          <label>Confirmar Contraseña *</label>
+          <div style="position:relative">
+            <input type="password" id="mu-pass2" placeholder="Repetir contraseña" style="width:100%;padding-right:40px">
+            <button type="button" onclick="togglePassVis('mu-pass2','mu-pass2-eye')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px" id="mu-pass2-eye">👁</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nota edición -->
+      <div id="mu-edit-note" class="hidden" style="margin-top:12px;padding:10px 14px;background:rgba(0,207,255,0.06);border:1px solid rgba(0,207,255,0.2);border-radius:9px;font-size:12px;color:var(--text2)">
+        💡 Deja los campos de contraseña vacíos para no cambiarla.
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-usuario')">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveUsuario()">Guardar</button>
+      <button class="btn btn-primary" onclick="saveUsuario()">💾 Guardar Usuario</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Mi Perfil -->
+<div class="modal-overlay hidden" id="modal-mi-perfil">
+  <div class="modal">
+    <div class="modal-header">
+      <span>👤 Mi Perfil</span>
+      <button class="modal-close" onclick="closeModal('modal-mi-perfil')">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Avatar & Info header -->
+      <div style="display:flex;align-items:center;gap:18px;margin-bottom:22px;padding:18px;background:var(--bg2);border-radius:12px;border:1px solid var(--border)">
+        <div id="perfil-avatar" style="width:64px;height:64px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;flex-shrink:0;">A</div>
+        <div style="flex:1">
+          <div id="perfil-nombre-header" style="font-size:18px;font-weight:700">Administrador</div>
+          <div id="perfil-rol-header" style="margin-top:4px"></div>
+          <div id="perfil-user-header" style="font-size:12px;color:var(--text3);margin-top:2px;font-family:var(--mono)">@admin</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div style="display:flex;gap:4px;margin-bottom:20px;background:var(--bg2);border-radius:10px;padding:4px">
+        <button id="tab-datos" onclick="switchPerfilTab('datos')" style="flex:1;padding:8px;border:none;border-radius:8px;background:var(--card);color:var(--text);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s">📝 Mis Datos</button>
+        <button id="tab-pass" onclick="switchPerfilTab('pass')" style="flex:1;padding:8px;border:none;border-radius:8px;background:transparent;color:var(--text2);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s">🔑 Cambiar Contraseña</button>
+      </div>
+
+      <!-- Tab: Mis Datos -->
+      <div id="perfil-tab-datos">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Usuario</label>
+            <input type="text" id="perfil-username" readonly style="background:var(--bg2);color:var(--text3);cursor:not-allowed">
+          </div>
+          <div class="form-group">
+            <label>Rol</label>
+            <input type="text" id="perfil-rol" readonly style="background:var(--bg2);color:var(--text3);cursor:not-allowed">
+          </div>
+          <div class="form-group">
+            <label>Nombre Completo *</label>
+            <input type="text" id="perfil-nombre" placeholder="Tu nombre completo">
+          </div>
+          <div class="form-group">
+            <label>DNI</label>
+            <input type="text" id="perfil-dni" placeholder="12345678" maxlength="8">
+          </div>
+          <div class="form-group">
+            <label>Correo electrónico *</label>
+            <input type="email" id="perfil-email" placeholder="correo@empresa.com">
+          </div>
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="text" id="perfil-tel" placeholder="9xxxxxxxx">
+          </div>
+        </div>
+        <div style="margin-top:16px;text-align:right">
+          <button class="btn btn-primary" onclick="savePerfilDatos()">💾 Guardar cambios</button>
+        </div>
+      </div>
+
+      <!-- Tab: Cambiar contraseña -->
+      <div id="perfil-tab-pass" class="hidden">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Contraseña Actual *</label>
+            <div style="position:relative">
+              <input type="password" id="perfil-pass-actual" placeholder="Contraseña actual" style="width:100%;padding-right:40px">
+              <button type="button" onclick="togglePassVis('perfil-pass-actual','eye-actual')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px" id="eye-actual">👁</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Nueva Contraseña *</label>
+            <div style="position:relative">
+              <input type="password" id="perfil-pass-nueva" placeholder="Nueva contraseña" style="width:100%;padding-right:40px">
+              <button type="button" onclick="togglePassVis('perfil-pass-nueva','eye-nueva')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px" id="eye-nueva">👁</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Confirmar Nueva Contraseña *</label>
+            <div style="position:relative">
+              <input type="password" id="perfil-pass-confirmar" placeholder="Repetir contraseña" style="width:100%;padding-right:40px">
+              <button type="button" onclick="togglePassVis('perfil-pass-confirmar','eye-confirmar')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px" id="eye-confirmar">👁</button>
+            </div>
+          </div>
+        </div>
+        <!-- Indicador de fuerza -->
+        <div style="margin-top:12px">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:6px;font-family:var(--mono)">FORTALEZA</div>
+          <div style="height:4px;background:var(--bg3);border-radius:4px;overflow:hidden">
+            <div id="pass-strength-bar" style="height:100%;width:0%;transition:all 0.3s;border-radius:4px"></div>
+          </div>
+          <div id="pass-strength-label" style="font-size:11px;color:var(--text3);margin-top:4px"></div>
+        </div>
+        <div style="margin-top:16px;text-align:right">
+          <button class="btn btn-primary" onclick="savePerfilPassword()">🔑 Cambiar contraseña</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
