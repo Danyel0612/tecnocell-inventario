@@ -12,6 +12,7 @@ let state = {
   currentUser: null,
   productos: [],
   proveedores: [],
+  clientes: [],
   usuarios: [],
   entradas: [],
   salidas: [],
@@ -211,6 +212,7 @@ const PAGE_META = {
   entradas:     { title: '📥 Entradas',     sub: 'Registro de ingresos al almacén' },
   salidas:      { title: '📤 Salidas',      sub: 'Registro de salidas y ventas' },
   movimientos:  { title: '🔄 Movimientos',  sub: 'Historial completo de movimientos' },
+  clientes:     { title: '👥 Clientes',     sub: 'Gestión de clientes' },
   proveedores:  { title: '🏢 Proveedores',  sub: 'Gestión de proveedores' },
   usuarios:     { title: '👤 Usuarios',     sub: 'Gestión de usuarios y roles' },
   alertas:      { title: '🔔 Alertas',      sub: 'Productos con stock bajo o agotado' },
@@ -225,9 +227,11 @@ function showPage(page) {
   const m = PAGE_META[page];
   document.getElementById('page-title').textContent = m.title;
   document.getElementById('page-sub').textContent   = m.sub;
-  const renders = { dashboard, productos: renderProductos, entradas: renderEntradas, salidas: renderSalidas,
-    movimientos: renderMovimientos, proveedores: renderProveedores, usuarios: renderUsuarios,
-    alertas: renderAlertas, reportes: renderReportes };
+  const renders = {
+    dashboard, productos: renderProductos, entradas: renderEntradas, salidas: renderSalidas,
+    movimientos: renderMovimientos, clientes: renderClientes, proveedores: renderProveedores,
+    usuarios: renderUsuarios, alertas: renderAlertas, reportes: renderReportes
+  };
   if (renders[page]) renders[page]();
 }
 
@@ -313,8 +317,17 @@ function stockPill(p) {
 function openModal(id) {
   document.getElementById(id).classList.remove('hidden');
   // Poblar selects al abrir
-  if (id==='modal-entrada') { fillSelect('me-producto'); fillProvSelect('me-proveedor'); setTodayDate('me-fecha'); }
-  if (id==='modal-salida')  { fillSelect('ms-producto'); setTodayDate('ms-fecha'); updateStockInfo(); }
+  if (id === 'modal-entrada') {
+    fillSelect('me-producto');
+    fillProvSelect('me-proveedor');
+    setTodayDate('me-fecha');
+  }
+  if (id === 'modal-salida') {
+    fillSelect('ms-producto');
+    fillClienteSelect('ms-cliente');
+    setTodayDate('ms-fecha');
+    updateStockInfo();
+  }
 }
 
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
@@ -448,6 +461,151 @@ function setTodayDate(fieldId) {
   if (el) el.value = new Date().toISOString().split('T')[0];
 }
 
+function fillClienteSelect(selectId) {
+  const sel = document.getElementById(selectId);
+  if (!sel) return;
+  sel.innerHTML = '<option value="">— Sin cliente —</option>' +
+    (state.clientes || []).filter(c => c.activo).map(c =>
+      `<option value="${c.id}">${c.nombre} (${c.doc})</option>`).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// CLIENTES
+// ══════════════════════════════════════════════════════
+function renderClientes(q = '') {
+  let lista = (state.clientes || []).slice();
+  if (q) lista = lista.filter(c =>
+    (c.nombre + c.doc + c.email + (c.tel || '')).toLowerCase().includes(q.toLowerCase()));
+
+  const tbody = document.getElementById('tbl-clientes');
+  if (!tbody) return;
+
+  tbody.innerHTML = lista.length ? lista.map(c => `
+    <tr style="${!c.activo ? 'opacity:0.55' : ''}">
+      <td class="font-mono text-accent" style="font-size:12px">${c.doc}</td>
+      <td><strong>${c.nombre}</strong></td>
+      <td>${c.tel || '—'}</td>
+      <td>${c.email || '—'}</td>
+      <td>${c.dir || '—'}</td>
+      <td><span class="pill ${c.activo ? 'pill-success' : 'pill-danger'}">${c.activo ? 'Activo' : 'Inactivo'}</span></td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-sm btn-ghost" onclick="editCliente(${c.id})">✏ Editar</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteCliente(${c.id})" style="margin-left:4px">🗑</button>
+      </td>
+    </tr>`).join('') : emptyRow(7, '🔍 No se encontraron clientes');
+}
+
+function editCliente(id) {
+  const c = (state.clientes || []).find(x => x.id === id);
+  if (!c) return;
+  document.getElementById('mcli-title').textContent = 'Editar Cliente';
+  document.getElementById('mcli-id').value          = c.id;
+  document.getElementById('mcli-doc').value         = c.doc;
+  document.getElementById('mcli-nombre').value      = c.nombre;
+  document.getElementById('mcli-tel').value         = c.tel || '';
+  document.getElementById('mcli-email').value       = c.email || '';
+  document.getElementById('mcli-dir').value         = c.dir || '';
+  openModal('modal-cliente');
+}
+
+function openModal_Cliente_new() {
+  document.getElementById('mcli-title').textContent = 'Nuevo Cliente';
+  clearForm(['mcli-id','mcli-doc','mcli-nombre','mcli-tel','mcli-email','mcli-dir']);
+  openModal('modal-cliente');
+}
+
+async function buscarDocCliente() {
+  const doc = document.getElementById('mcli-doc')?.value.trim();
+  if (!doc) return toast('Ingresa un número de documento primero', 'warn');
+  if (doc.length !== 8 && doc.length !== 11)
+    return toast('El documento debe tener 8 dígitos (DNI) o 11 dígitos (RUC)', 'warn');
+
+  const TOKEN = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImRhbnllbDA2MTI5NUBnbWFpbC5jb20ifQ.DR8hg0H9dxJNxXWz--RAxlvvtOsBHseG8dSEk45WdCA';
+  const esDNI = doc.length === 8;
+  const url   = esDNI
+    ? `https://dniruc.apisperu.com/api/v1/dni/${doc}?token=${TOKEN}`
+    : `https://dniruc.apisperu.com/api/v1/ruc/${doc}?token=${TOKEN}`;
+
+  // Feedback visual mientras carga
+  const btn = document.querySelector('[onclick="buscarDocCliente()"]');
+  if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
+
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+
+    if (esDNI) {
+      // Respuesta DNI: { dni, nombres, apellidoPaterno, apellidoMaterno }
+      if (!data.nombres) throw new Error('Sin datos');
+      const nombreCompleto = `${data.apellidoPaterno} ${data.apellidoMaterno}, ${data.nombres}`.trim();
+      document.getElementById('mcli-nombre').value = nombreCompleto;
+      document.getElementById('mcli-dir').value    = '';
+      toast('✅ DNI encontrado en RENIEC');
+    } else {
+      // Respuesta RUC: { ruc, razonSocial, direccion, ubigeoSunat, ... }
+      if (!data.razonSocial) throw new Error('Sin datos');
+      document.getElementById('mcli-nombre').value = data.razonSocial;
+      document.getElementById('mcli-dir').value    = data.direccion || '';
+      toast('✅ RUC encontrado en SUNAT');
+    }
+  } catch (err) {
+    // Fallback: buscar en base local
+    const local = (state.clientes || []).find(c => c.doc === doc);
+    if (local) {
+      document.getElementById('mcli-nombre').value = local.nombre;
+      document.getElementById('mcli-tel').value    = local.tel || '';
+      document.getElementById('mcli-email').value  = local.email || '';
+      document.getElementById('mcli-dir').value    = local.dir || '';
+      toast('✅ Cliente encontrado en base local');
+    } else {
+      toast('❌ No se pudo consultar la API. Completa los datos manualmente.', 'error');
+    }
+  } finally {
+    if (btn) { btn.textContent = '🔍'; btn.disabled = false; }
+  }
+}
+
+function saveCliente() {
+  const id     = document.getElementById('mcli-id').value;
+  const doc    = document.getElementById('mcli-doc').value.trim();
+  const nombre = document.getElementById('mcli-nombre').value.trim();
+  const tel    = document.getElementById('mcli-tel').value.trim();
+  const email  = document.getElementById('mcli-email').value.trim();
+  const dir    = document.getElementById('mcli-dir').value.trim();
+
+  if (!doc || !nombre) return toast('Documento y nombre son obligatorios', 'error');
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast('Correo inválido', 'error');
+
+  if (!state.clientes) state.clientes = [];
+
+  if (id) {
+    const idx = state.clientes.findIndex(c => c.id == id);
+    state.clientes[idx] = { ...state.clientes[idx], doc, nombre, tel, email, dir };
+    toast('Cliente actualizado ✅');
+  } else {
+    if (state.clientes.find(c => c.doc === doc)) return toast('Ya existe un cliente con ese documento', 'error');
+    state.clientes.push({
+      id: Math.max(0, ...state.clientes.map(c => c.id)) + 1,
+      doc, nombre, tel, email, dir, activo: true
+    });
+    toast('Cliente creado ✅');
+  }
+  saveData();
+  closeModal('modal-cliente');
+  renderClientes();
+  // Refrescar select de clientes en modal-salida si está abierto
+  fillClienteSelect('ms-cliente');
+}
+
+function deleteCliente(id) {
+  if (!confirm('¿Eliminar este cliente?')) return;
+  state.clientes = (state.clientes || []).filter(c => c.id !== id);
+  saveData();
+  renderClientes();
+  toast('Cliente eliminado');
+}
+
 function saveEntrada() {
   const prodId    = parseInt(document.getElementById('me-producto').value);
   const provId    = parseInt(document.getElementById('me-proveedor').value);
@@ -484,17 +642,18 @@ function saveEntrada() {
 // ══════════════════════════════════════════════════════
 function renderSalidas() {
   const tbody = document.getElementById('tbl-salidas');
-  const list  = [...state.salidas].sort((a,b)=>b.id-a.id);
-  tbody.innerHTML = list.length ? list.map(s=>`
+  const list  = [...state.salidas].sort((a,b) => b.id - a.id);
+  tbody.innerHTML = list.length ? list.map(s => `
     <tr>
       <td class="text-muted">${s.fecha}</td>
       <td><strong>${s.productoNom}</strong></td>
-      <td><span class="pill pill-info">${s.motivo}</span></td>
+      <td>${s.clienteNom ? `<span class="pill pill-info" style="font-size:10px">${s.clienteNom}</span>` : '<span class="text-muted" style="font-size:11px">Publico General</span>'}</td>
+      <td><span class="pill pill-gray">${s.motivo}</span></td>
       <td class="font-mono text-danger">${s.cantidad}</td>
       <td class="font-mono">S/ ${fmt(s.pVenta)}</td>
-      <td class="font-mono text-success">S/ ${fmt(s.cantidad*s.pVenta)}</td>
+      <td class="font-mono text-success">S/ ${fmt(s.cantidad * s.pVenta)}</td>
       <td>${s.usuario}</td>
-    </tr>`).join('') : emptyRow(7,'Sin salidas registradas');
+    </tr>`).join('') : emptyRow(8, 'Sin salidas registradas');
 }
 
 function updateStockInfo() {
@@ -509,33 +668,42 @@ function updateStockInfo() {
 }
 
 function saveSalida() {
-  const prodId   = parseInt(document.getElementById('ms-producto').value);
-  const cantidad = parseInt(document.getElementById('ms-cantidad').value)||0;
-  const pVenta   = parseFloat(document.getElementById('ms-pventa').value)||0;
-  const motivo   = document.getElementById('ms-motivo').value;
-  const fecha    = document.getElementById('ms-fecha').value;
-  const obs      = document.getElementById('ms-obs').value.trim();
+  const prodId    = parseInt(document.getElementById('ms-producto').value);
+  const cantidad  = parseInt(document.getElementById('ms-cantidad').value) || 0;
+  const pVenta    = parseFloat(document.getElementById('ms-pventa').value) || 0;
+  const motivo    = document.getElementById('ms-motivo').value;
+  const fecha     = document.getElementById('ms-fecha').value;
+  const obs       = document.getElementById('ms-obs').value.trim();
+  const clienteSel = document.getElementById('ms-cliente');
+  const clienteId  = clienteSel ? (parseInt(clienteSel.value) || null) : null;
+  const clienteNom = clienteId
+    ? (state.clientes || []).find(c => c.id === clienteId)?.nombre || ''
+    : '';
 
-  if (!prodId || cantidad<=0) return toast('Complete cantidad válida', 'error');
-  const prod = state.productos.find(p=>p.id===prodId);
+  if (!prodId || cantidad <= 0) return toast('Complete cantidad válida', 'error');
+  const prod = state.productos.find(p => p.id === prodId);
   if (!prod) return toast('Producto no encontrado', 'error');
   if (prod.stock < cantidad) return toast(`Stock insuficiente. Disponible: ${prod.stock}`, 'error');
 
   prod.stock -= cantidad;
 
-  const newId = Math.max(0,...state.salidas.map(s=>s.id),0)+1;
+  const newId = Math.max(0, ...state.salidas.map(s => s.id), 0) + 1;
   const salida = {
     id: newId, fecha, productoId: prod.id, productoNom: prod.nombre,
-    motivo, cantidad, pVenta, obs,
-    usuario: state.currentUser?.username||'admin'
+    motivo, cantidad, pVenta, obs, clienteId, clienteNom,
+    usuario: state.currentUser?.username || 'admin'
   };
   state.salidas.push(salida);
   state.movimientos.push({
-    id: newId+20000, fecha, tipo:'Salida',
+    id: newId + 20000, fecha, tipo: 'Salida',
     productoId: prod.id, productoCod: prod.codigo, productoNom: prod.nombre,
-    cantidad, motivo, obs, usuario: state.currentUser?.username||'admin'
+    cantidad, motivo, obs, clienteNom,
+    usuario: state.currentUser?.username || 'admin'
   });
-  saveData(); closeModal('modal-salida'); renderSalidas(); toast('Salida registrada ✅');
+  saveData();
+  closeModal('modal-salida');
+  renderSalidas();
+  toast('Salida registrada ✅');
 }
 
 // ══════════════════════════════════════════════════════
@@ -852,15 +1020,20 @@ function switchPerfilTab(tab) {
   if (tab === 'datos') {
     tabDatos.classList.remove('hidden');
     tabPass.classList.add('hidden');
-    btnDatos.style.cssText += ';background:var(--card);color:var(--text)';
-    btnPass.style.cssText  += ';background:transparent;color:var(--text2)';
+    btnDatos.style.background = 'var(--card)';
+    btnDatos.style.color      = 'var(--text)';
+    btnPass.style.background  = 'transparent';
+    btnPass.style.color       = 'var(--text2)';
   } else {
     tabDatos.classList.add('hidden');
     tabPass.classList.remove('hidden');
-    btnDatos.style.cssText += ';background:transparent;color:var(--text2)';
-    btnPass.style.cssText  += ';background:var(--card);color:var(--text)';
+    btnDatos.style.background = 'transparent';
+    btnDatos.style.color      = 'var(--text2)';
+    btnPass.style.background  = 'var(--card)';
+    btnPass.style.color       = 'var(--text)';
+    // Usar oninput en HTML en lugar de addEventListener para evitar duplicados
     const passNueva = document.getElementById('perfil-pass-nueva');
-    if (passNueva) passNueva.addEventListener('input', updatePasswordStrength);
+    if (passNueva) passNueva.oninput = updatePasswordStrength;
   }
 }
 
@@ -936,9 +1109,7 @@ function updatePasswordStrength() {
   label.textContent    = lvl.text;
 }
 
-      </td>
-    </tr>`).join('');
-}
+
 
 
 // ══════════════════════════════════════════════════════

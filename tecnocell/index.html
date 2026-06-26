@@ -49,6 +49,9 @@
       <div class="nav-item" onclick="showPage('movimientos')" id="nav-movimientos">
         <span class="nav-icon">🔄</span> Movimientos
       </div>
+      <div class="nav-item" onclick="showPage('clientes')" id="nav-clientes">
+        <span class="nav-icon">👥</span> Clientes
+      </div>
       <div class="nav-item" onclick="showPage('proveedores')" id="nav-proveedores">
         <span class="nav-icon">🏢</span> Proveedores
       </div>
@@ -183,7 +186,7 @@
         </div>
         <div class="section-card">
           <table class="tbl">
-            <thead><tr><th>Fecha</th><th>Producto</th><th>Motivo</th><th>Cantidad</th><th>P. Venta</th><th>Total</th><th>Usuario</th></tr></thead>
+            <thead><tr><th>Fecha</th><th>Producto</th><th>Cliente</th><th>Motivo</th><th>Cantidad</th><th>P. Venta</th><th>Total</th><th>Usuario</th></tr></thead>
             <tbody id="tbl-salidas"></tbody>
           </table>
         </div>
@@ -203,6 +206,20 @@
           <table class="tbl">
             <thead><tr><th>Fecha</th><th>Tipo</th><th>Producto</th><th>Cantidad</th><th>Motivo/Proveedor</th><th>Usuario</th><th>Observación</th></tr></thead>
             <tbody id="tbl-movimientos"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══════ CLIENTES ══════ -->
+      <div id="page-clientes" class="hidden">
+        <div class="toolbar">
+          <input type="text" class="search-input" placeholder="🔍 Buscar cliente..." oninput="renderClientes(this.value)">
+          <button class="btn btn-primary" onclick="openModal_Cliente_new()">+ Nuevo Cliente</button>
+        </div>
+        <div class="section-card">
+          <table class="tbl">
+            <thead><tr><th>Doc/RUC</th><th>Nombre / Empresa</th><th>Teléfono</th><th>Correo</th><th>Dirección</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody id="tbl-clientes"></tbody>
           </table>
         </div>
       </div>
@@ -446,6 +463,15 @@
           <input type="number" id="ms-cantidad" placeholder="0" min="1">
         </div>
         <div class="form-group">
+          <label style="display:flex;justify-content:space-between">
+            <span>Cliente</span>
+            <a href="javascript:void(0)" onclick="openModal_Cliente_new()" style="color:var(--accent);font-size:11px;font-weight:600;text-decoration:none">+ Nuevo</a>
+          </label>
+          <select id="ms-cliente">
+            <option value="">— Público General —</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label>Motivo *</label>
           <select id="ms-motivo">
             <option>Venta</option>
@@ -515,6 +541,48 @@
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-proveedor')">Cancelar</button>
       <button class="btn btn-primary" onclick="saveProveedor()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Cliente -->
+<div class="modal-overlay hidden" id="modal-cliente">
+  <div class="modal">
+    <div class="modal-header">
+      <span id="mcli-title">Nuevo Cliente</span>
+      <button class="modal-close" onclick="closeModal('modal-cliente')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="mcli-id">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>DNI / RUC *</label>
+          <div style="display:flex;gap:8px">
+            <input type="text" id="mcli-doc" placeholder="Número de documento" maxlength="11" style="flex:1">
+            <button type="button" class="btn btn-primary" onclick="buscarDocCliente()" title="Buscar en RENIEC/SUNAT" style="padding:0 14px">🔍</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Nombre o Razón Social *</label>
+          <input type="text" id="mcli-nombre" placeholder="Nombre completo o empresa">
+        </div>
+        <div class="form-group">
+          <label>Teléfono</label>
+          <input type="text" id="mcli-tel" placeholder="9xxxxxxxx">
+        </div>
+        <div class="form-group">
+          <label>Correo</label>
+          <input type="email" id="mcli-email" placeholder="correo@ejemplo.com">
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label>Dirección</label>
+          <input type="text" id="mcli-dir" placeholder="Dirección del cliente...">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-cliente')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveCliente()">Guardar</button>
     </div>
   </div>
 </div>
