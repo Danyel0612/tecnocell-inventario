@@ -27,6 +27,9 @@
 <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• APP â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <div id="app">
 
+  <!-- OVERLAY MÃ“VIL -->
+  <div id="sidebar-overlay" onclick="toggleMenu()"></div>
+
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-logo">
@@ -82,9 +85,12 @@
   <!-- MAIN -->
   <main class="main">
     <div class="topbar">
-      <div>
-        <div class="page-title" id="page-title">Dashboard</div>
-        <div class="page-sub" id="page-sub">Resumen general del sistema</div>
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <div class="menu-toggle" onclick="toggleMenu()" title="MenÃº">â˜°</div>
+        <div>
+          <div class="page-title" id="page-title">Dashboard</div>
+          <div class="page-sub" id="page-sub">Resumen general del sistema</div>
+        </div>
       </div>
       <div class="topbar-right">
         <div class="icon-btn notif-dot" onclick="showPage('alertas')" title="Alertas">ðŸ””</div>

@@ -1,0 +1,35 @@
+# ─────────────────────────────────────────────────────────────
+# TecnoCell Inventario — Docker Compose
+# Uso: docker-compose up --build
+# ─────────────────────────────────────────────────────────────
+version: '3.9'
+
+services:
+  tecnocell-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tecnocell-inventario
+    image: tecnocell-inventario:latest
+    ports:
+      - "8080:8080"
+    environment:
+      # Credenciales de Supabase (PostgreSQL en la nube)
+      DB_URL: ${DB_URL:-jdbc:postgresql://aws-0-us-west-2.pooler.supabase.com:5432/postgres}
+      DB_USER: ${DB_USER:-postgres.cilnbzovlcarnjkiuylh}
+      DB_PASS: ${DB_PASS:-Dany@danyel@}
+      # Secreto JWT (cambiar en produccion por uno largo y aleatorio)
+      JWT_SECRET: ${JWT_SECRET:-TecnoCellS3cretK3y2024SuperSeguroParaJWT}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      - "com.tecnocell.description=Sistema de Inventario TecnoCell S.A.C."
+      - "com.tecnocell.version=1.0.0"
+
+# Nota: La base de datos (PostgreSQL) esta alojada en Supabase (nube).
+# No se requiere un contenedor de base de datos local.

@@ -1,4 +1,4 @@
-  /* ═══════════════════════════════════════
+﻿  /* ═══════════════════════════════════════
    TECNOCELL S.A.C. — app.js
    Lógica completa del sistema de inventario
 ═══════════════════════════════════════ */
@@ -22,25 +22,25 @@ let state = {
 // ── USUARIOS POR DEFECTO ───────────────────────────────
 const DEFAULT_USERS = [
   { id: 1, username: 'admin',      password: '1234', nombre: 'Administrador',    rol: 'Administrador', email: 'admin@tecnocell.pe',      dni: '00000001', activo: true },
-  { id: 2, username: 'almacen',    password: '1234', nombre: 'Carlos Quispe',     rol: 'Almacenero',    email: 'almacen@tecnocell.pe',    dni: '72345678', activo: true },
+  { id: 2, username: 'Almacén',    password: '1234', nombre: 'Carlos Quispe',     rol: 'Almacénero',    email: 'Almacén@tecnocell.pe',    dni: '72345678', activo: true },
   { id: 3, username: 'vendedor',   password: '1234', nombre: 'Ana Torres',        rol: 'Vendedor',      email: 'ventas@tecnocell.pe',     dni: '87654321', activo: true },
 ];
 state.usuarios = DEFAULT_USERS;
 
 // ── DATOS DE DEMOSTRACIÓN ─────────────────────────────
 const DEMO_PRODUCTOS = [
-  { id:1,  codigo:'CEL-001', nombre:'Samsung Galaxy S24 Ultra',  categoria:'Celulares',  marca:'Samsung', stock:8,  stockMin:3, pCosto:2800, pVenta:3599, descripcion:'256GB, 12GB RAM', activo:true },
-  { id:2,  codigo:'CEL-002', nombre:'iPhone 15 Pro Max',          categoria:'Celulares',  marca:'Apple',   stock:4,  stockMin:3, pCosto:4200, pVenta:5299, descripcion:'256GB, Titanio', activo:true },
-  { id:3,  codigo:'CEL-003', nombre:'Xiaomi Redmi Note 13 Pro',   categoria:'Celulares',  marca:'Xiaomi',  stock:15, stockMin:5, pCosto:780,  pVenta:999,  descripcion:'128GB, NFC', activo:true },
-  { id:4,  codigo:'CEL-004', nombre:'Motorola Edge 40 Pro',       categoria:'Celulares',  marca:'Motorola',stock:2,  stockMin:3, pCosto:1100, pVenta:1499, descripcion:'256GB, Carga 125W', activo:true },
-  { id:5,  codigo:'CEL-005', nombre:'OPPO Reno 11 Pro',           categoria:'Celulares',  marca:'OPPO',    stock:7,  stockMin:4, pCosto:950,  pVenta:1249, descripcion:'256GB, Triple cámara', activo:true },
-  { id:6,  codigo:'ACC-001', nombre:'Funda Silicone iPhone 15',   categoria:'Accesorios', marca:'Apple',   stock:25, stockMin:10,pCosto:85,   pVenta:129,  descripcion:'Original', activo:true },
-  { id:7,  codigo:'ACC-002', nombre:'Cargador USB-C 65W',         categoria:'Accesorios', marca:'Anker',   stock:18, stockMin:8, pCosto:65,   pVenta:99,   descripcion:'GaN Technology', activo:true },
-  { id:8,  codigo:'ACC-003', nombre:'Auriculares TWS Pro',        categoria:'Audio',      marca:'JBL',     stock:1,  stockMin:5, pCosto:180,  pVenta:249,  descripcion:'ANC, 30h batería', activo:true },
-  { id:9,  codigo:'REP-001', nombre:'Pantalla Samsung S22',       categoria:'Repuestos',  marca:'Samsung', stock:3,  stockMin:2, pCosto:320,  pVenta:450,  descripcion:'AMOLED Original', activo:true },
-  { id:10, codigo:'REP-002', nombre:'Batería iPhone 13',           categoria:'Repuestos',  marca:'Apple',   stock:0,  stockMin:3, pCosto:150,  pVenta:220,  descripcion:'3227mAh Original', activo:true },
-  { id:11, codigo:'TAB-001', nombre:'iPad Air M2 11"',            categoria:'Tablets',    marca:'Apple',   stock:5,  stockMin:2, pCosto:2400, pVenta:3099, descripcion:'256GB WiFi', activo:true },
-  { id:12, codigo:'ACC-004', nombre:'Cable USB-C Trenzado 1.5m',  categoria:'Accesorios', marca:'Ugreen',  stock:40, stockMin:15,pCosto:18,   pVenta:35,   descripcion:'Carga rápida 60W', activo:true },
+  { id:1,  codigo:'CEL-001', nombre:'Samsung Galaxy S24 Ultra',  Categoría:'Celulares',  marca:'Samsung', stock:8,  stockMin:3, pCosto:2800, pVenta:3599, Descripción:'256GB, 12GB RAM', activo:true },
+  { id:2,  codigo:'CEL-002', nombre:'iPhone 15 Pro Max',          Categoría:'Celulares',  marca:'Apple',   stock:4,  stockMin:3, pCosto:4200, pVenta:5299, Descripción:'256GB, Titanio', activo:true },
+  { id:3,  codigo:'CEL-003', nombre:'Xiaomi Redmi Note 13 Pro',   Categoría:'Celulares',  marca:'Xiaomi',  stock:15, stockMin:5, pCosto:780,  pVenta:999,  Descripción:'128GB, NFC', activo:true },
+  { id:4,  codigo:'CEL-004', nombre:'Motorola Edge 40 Pro',       Categoría:'Celulares',  marca:'Motorola',stock:2,  stockMin:3, pCosto:1100, pVenta:1499, Descripción:'256GB, Carga 125W', activo:true },
+  { id:5,  codigo:'CEL-005', nombre:'OPPO Reno 11 Pro',           Categoría:'Celulares',  marca:'OPPO',    stock:7,  stockMin:4, pCosto:950,  pVenta:1249, Descripción:'256GB, Triple cámara', activo:true },
+  { id:6,  codigo:'ACC-001', nombre:'Funda Silicone iPhone 15',   Categoría:'Accesorios', marca:'Apple',   stock:25, stockMin:10,pCosto:85,   pVenta:129,  Descripción:'Original', activo:true },
+  { id:7,  codigo:'ACC-002', nombre:'Cargador USB-C 65W',         Categoría:'Accesorios', marca:'Anker',   stock:18, stockMin:8, pCosto:65,   pVenta:99,   Descripción:'GaN Technology', activo:true },
+  { id:8,  codigo:'ACC-003', nombre:'Auriculares TWS Pro',        Categoría:'Audio',      marca:'JBL',     stock:1,  stockMin:5, pCosto:180,  pVenta:249,  Descripción:'ANC, 30h batería', activo:true },
+  { id:9,  codigo:'REP-001', nombre:'Pantalla Samsung S22',       Categoría:'Repuestos',  marca:'Samsung', stock:3,  stockMin:2, pCosto:320,  pVenta:450,  Descripción:'AMOLED Original', activo:true },
+  { id:10, codigo:'REP-002', nombre:'Batería iPhone 13',           Categoría:'Repuestos',  marca:'Apple',   stock:0,  stockMin:3, pCosto:150,  pVenta:220,  Descripción:'3227mAh Original', activo:true },
+  { id:11, codigo:'TAB-001', nombre:'iPad Air M2 11"',            Categoría:'Tablets',    marca:'Apple',   stock:5,  stockMin:2, pCosto:2400, pVenta:3099, Descripción:'256GB WiFi', activo:true },
+  { id:12, codigo:'ACC-004', nombre:'Cable USB-C Trenzado 1.5m',  Categoría:'Accesorios', marca:'Ugreen',  stock:40, stockMin:15,pCosto:18,   pVenta:35,   Descripción:'Carga rápida 60W', activo:true },
 ];
 
 const DEMO_PROVEEDORES = [
@@ -96,13 +96,13 @@ async function cargarProductosSupabase() {
     id: p.id,
     codigo: p.codigo,
     nombre: p.nombre,
-    categoria: p.categoria,
+    Categoría: p.Categoría,
     marca: p.marca,
     stock: p.stock,
     stockMin: p.stock_min,
     pCosto: p.precio_costo,
     pVenta: p.precio_venta,
-    descripcion: p.descripcion,
+    Descripción: p.Descripción,
     activo: p.activo
   }));
 
@@ -115,10 +115,10 @@ function generateDemoMovimientos() {
   const movs = [
     { id:1, fecha:dias(0), tipo:'Entrada', productoId:3, productoCod:'CEL-003', productoNom:'Xiaomi Redmi Note 13 Pro', cantidad:10, motivo:'Samsung Electronics', obs:'Pedido mensual', usuario:'admin' },
     { id:2, fecha:dias(0), tipo:'Salida',  productoId:1, productoCod:'CEL-001', productoNom:'Samsung Galaxy S24 Ultra', cantidad:1,  motivo:'Venta',             obs:'',              usuario:'vendedor' },
-    { id:3, fecha:dias(1), tipo:'Entrada', productoId:6, productoCod:'ACC-001', productoNom:'Funda Silicone iPhone 15', cantidad:15, motivo:'Importaciones TechPro S.A.C.', obs:'', usuario:'almacen' },
+    { id:3, fecha:dias(1), tipo:'Entrada', productoId:6, productoCod:'ACC-001', productoNom:'Funda Silicone iPhone 15', cantidad:15, motivo:'Importaciones TechPro S.A.C.', obs:'', usuario:'Almacén' },
     { id:4, fecha:dias(1), tipo:'Salida',  productoId:2, productoCod:'CEL-002', productoNom:'iPhone 15 Pro Max',        cantidad:1,  motivo:'Venta',             obs:'Cliente VIP',   usuario:'vendedor' },
     { id:5, fecha:dias(2), tipo:'Salida',  productoId:7, productoCod:'ACC-002', productoNom:'Cargador USB-C 65W',      cantidad:3,  motivo:'Venta',             obs:'',              usuario:'vendedor' },
-    { id:6, fecha:dias(3), tipo:'Entrada', productoId:9, productoCod:'REP-001', productoNom:'Pantalla Samsung S22',    cantidad:5,  motivo:'AccesoriosPlus S.A.C.', obs:'Urgente',  usuario:'almacen' },
+    { id:6, fecha:dias(3), tipo:'Entrada', productoId:9, productoCod:'REP-001', productoNom:'Pantalla Samsung S22',    cantidad:5,  motivo:'AccesoriosPlus S.A.C.', obs:'Urgente',  usuario:'Almacén' },
     { id:7, fecha:dias(4), tipo:'Salida',  productoId:5, productoCod:'CEL-005', productoNom:'OPPO Reno 11 Pro',        cantidad:2,  motivo:'Venta',             obs:'',              usuario:'vendedor' },
   ];
   state.movimientos = movs;
@@ -180,7 +180,7 @@ async function doLogin() {
 }
 
 function doLogout() {
-  if (!confirm('¿Cerrar sesión?')) return;
+  if (!confirm('¿Cerrar Sesión?')) return;
   state.currentUser = null;
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').classList.remove('hidden');
@@ -193,7 +193,7 @@ function doLogout() {
 function applyRoleRestrictions(rol) {
   const permisos = {
     'Administrador': ['dashboard','productos','entradas','salidas','movimientos','clientes','proveedores','usuarios','alertas','reportes'],
-    'Almacenero':    ['dashboard','productos','entradas','salidas','movimientos','alertas'],
+    'Almacénero':    ['dashboard','productos','entradas','salidas','movimientos','alertas'],
     'Vendedor':      ['dashboard','productos','salidas','movimientos','clientes','alertas'],
   };
   const permitidos = permisos[rol] || ['dashboard'];
@@ -209,7 +209,7 @@ function applyRoleRestrictions(rol) {
 const PAGE_META = {
   dashboard:    { title: '📊 Dashboard',    sub: 'Resumen general del sistema' },
   productos:    { title: '📦 Productos',    sub: 'Gestión de productos en inventario' },
-  entradas:     { title: '📥 Entradas',     sub: 'Registro de ingresos al almacén' },
+  entradas:     { title: '📥 Entradas',     sub: 'Registro de ingresos al Almacén' },
   salidas:      { title: '📤 Salidas',      sub: 'Registro de salidas y ventas' },
   movimientos:  { title: '🔄 Movimientos',  sub: 'Historial completo de movimientos' },
   clientes:     { title: '👥 Clientes',     sub: 'Gestión de clientes' },
@@ -287,13 +287,13 @@ function renderProductos(q='') {
   const cat = document.getElementById('filtro-cat')?.value || '';
   let prods = state.productos.filter(p=>p.activo);
   if (q)   prods = prods.filter(p=>(p.nombre+p.codigo+p.marca).toLowerCase().includes(q.toLowerCase()));
-  if (cat) prods = prods.filter(p=>p.categoria===cat);
+  if (cat) prods = prods.filter(p=>p.Categoría===cat);
   const tbody = document.getElementById('tbl-productos');
   tbody.innerHTML = prods.length ? prods.map(p=>`
     <tr>
       <td class="font-mono text-accent" style="font-size:12px">${p.codigo}</td>
-      <td><strong>${p.nombre}</strong><br><span class="text-muted" style="font-size:11px">${p.descripcion||''}</span></td>
-      <td>${p.categoria}</td>
+      <td><strong>${p.nombre}</strong><br><span class="text-muted" style="font-size:11px">${p.Descripción||''}</span></td>
+      <td>${p.Categoría}</td>
       <td>${p.marca}</td>
       <td class="font-mono ${stockClass(p)}">${p.stock}</td>
       <td class="font-mono">S/ ${fmt(p.pCosto)}</td>
@@ -336,8 +336,8 @@ function clearForm(fields) { fields.forEach(f => { const el=document.getElementB
 
 function openModal_Producto_new() {
   document.getElementById('mp-title').textContent = 'Nuevo Producto';
-  clearForm(['mp-id','mp-codigo','mp-nombre','mp-marca','mp-stock','mp-stock-min','mp-pcosto','mp-pventa','mp-descripcion']);
-  document.getElementById('mp-categoria').value = 'Celulares';
+  clearForm(['mp-id','mp-codigo','mp-nombre','mp-marca','mp-stock','mp-stock-min','mp-pcosto','mp-pventa','mp-Descripción']);
+  document.getElementById('mp-Categoría').value = 'Celulares';
   openModal('modal-producto');
 }
 
@@ -348,13 +348,13 @@ function editProducto(id) {
   document.getElementById('mp-id').value          = p.id;
   document.getElementById('mp-codigo').value      = p.codigo;
   document.getElementById('mp-nombre').value      = p.nombre;
-  document.getElementById('mp-categoria').value   = p.categoria;
+  document.getElementById('mp-Categoría').value   = p.Categoría;
   document.getElementById('mp-marca').value       = p.marca;
   document.getElementById('mp-stock').value       = p.stock;
   document.getElementById('mp-stock-min').value   = p.stockMin;
   document.getElementById('mp-pcosto').value      = p.pCosto;
   document.getElementById('mp-pventa').value      = p.pVenta;
-  document.getElementById('mp-descripcion').value = p.descripcion||'';
+  document.getElementById('mp-Descripción').value = p.Descripción||'';
   openModal('modal-producto');
 }
 
@@ -372,13 +372,13 @@ async function saveProducto() {
   const productoData = {
     codigo,
     nombre,
-    categoria: document.getElementById('mp-categoria').value,
+    Categoría: document.getElementById('mp-Categoría').value,
     marca: document.getElementById('mp-marca').value.trim(),
     stock: parseInt(document.getElementById('mp-stock').value) || 0,
     stock_min: parseInt(document.getElementById('mp-stock-min').value) || 0,
     precio_costo: pcosto,
     precio_venta: pventa,
-    descripcion: document.getElementById('mp-descripcion').value.trim(),
+    Descripción: document.getElementById('mp-Descripción').value.trim(),
     activo: true
   };
 
@@ -543,10 +543,10 @@ async function buscarDocCliente() {
       document.getElementById('mcli-dir').value    = '';
       toast('✅ DNI encontrado en RENIEC');
     } else {
-      // Respuesta RUC: { ruc, razonSocial, direccion, ubigeoSunat, ... }
-      if (!data.razonSocial) throw new Error('Sin datos');
-      document.getElementById('mcli-nombre').value = data.razonSocial;
-      document.getElementById('mcli-dir').value    = data.direccion || '';
+      // Respuesta RUC: { ruc, RazónSocial, Dirección, ubigeoSunat, ... }
+      if (!data.RazónSocial) throw new Error('Sin datos');
+      document.getElementById('mcli-nombre').value = data.RazónSocial;
+      document.getElementById('mcli-dir').value    = data.Dirección || '';
       toast('✅ RUC encontrado en SUNAT');
     }
   } catch (err) {
@@ -818,7 +818,7 @@ function renderUsuarios(q = '') {
 
   tbody.innerHTML = lista.length ? lista.map(u => {
     const inicial = u.nombre.charAt(0).toUpperCase();
-    const rolColors = { 'Administrador': 'var(--accent)', 'Almacenero': 'var(--accent3)', 'Vendedor': 'var(--warn)' };
+    const rolColors = { 'Administrador': 'var(--accent)', 'Almacénero': 'var(--accent3)', 'Vendedor': 'var(--warn)' };
     const avatarColor = rolColors[u.rol] || 'var(--accent2)';
     const esMismoUser = u.id === state.currentUser?.id;
     return `
@@ -849,7 +849,7 @@ function renderUsuarios(q = '') {
 }
 
 function rolPill(rol) {
-  const map = { 'Administrador': 'pill-info', 'Almacenero': 'pill-success', 'Vendedor': 'pill-warn' };
+  const map = { 'Administrador': 'pill-info', 'Almacénero': 'pill-success', 'Vendedor': 'pill-warn' };
   return `<span class="pill ${map[rol] || 'pill-gray'}">${rol}</span>`;
 }
 
@@ -906,7 +906,7 @@ function saveUsuario() {
   if (id) {
     // Edición: contraseña es opcional
     if (pass || pass2) {
-      if (pass.length < 4) return toast('La contraseña debe tener mínimo 4 caracteres', 'error');
+      if (pass.length < 4) return toast('La contraseña debe tener Mínimo 4 caracteres', 'error');
       if (pass !== pass2) return toast('Las contraseñas no coinciden ❌', 'error');
       finalPassword = pass;
     } else {
@@ -926,7 +926,7 @@ function saveUsuario() {
     toast('Usuario actualizado ✅');
   } else {
     if (!pass) return toast('La contraseña es obligatoria', 'error');
-    if (pass.length < 4) return toast('La contraseña debe tener mínimo 4 caracteres', 'error');
+    if (pass.length < 4) return toast('La contraseña debe tener Mínimo 4 caracteres', 'error');
     if (pass !== pass2) return toast('Las contraseñas no coinciden ❌', 'error');
     if (state.usuarios.find(u => u.username === username)) return toast('Ese nombre de usuario ya existe', 'error');
     finalPassword = pass;
@@ -1071,7 +1071,7 @@ function savePerfilPassword() {
 
   if (!actual || !nueva || !confirmar) return toast('Completa todos los campos de contraseña', 'error');
   if (actual !== u.password) return toast('❌ La contraseña actual es incorrecta', 'error');
-  if (nueva.length < 4) return toast('La nueva contraseña debe tener mínimo 4 caracteres', 'error');
+  if (nueva.length < 4) return toast('La nueva contraseña debe tener Mínimo 4 caracteres', 'error');
   if (nueva !== confirmar) return toast('❌ Las nuevas contraseñas no coinciden', 'error');
   if (nueva === actual) return toast('La nueva contraseña debe ser diferente a la actual', 'warn');
 
@@ -1123,7 +1123,7 @@ function renderAlertas() {
     <tr>
       <td class="font-mono text-accent" style="font-size:12px">${p.codigo}</td>
       <td><strong>${p.nombre}</strong></td>
-      <td>${p.categoria}</td>
+      <td>${p.Categoría}</td>
       <td class="font-mono ${p.stock===0?'text-danger fw-bold':'text-warn fw-bold'}">${p.stock}</td>
       <td class="font-mono">${p.stockMin}</td>
       <td>${p.stock===0?'<span class="pill pill-danger">⛔ Agotado</span>':'<span class="pill pill-warn">⚠ Stock Bajo</span>'}</td>
@@ -1157,10 +1157,10 @@ function renderReportes() {
   document.getElementById('r-entradas-mes').textContent  = entsMes;
   document.getElementById('r-salidas-mes').textContent   = salsMes;
 
-  // Por categoría
+  // Por Categoría
   const cats = {};
-  prods.forEach(p=>{ if(!cats[p.categoria]) cats[p.categoria]={count:0,stock:0,valor:0}; cats[p.categoria].count++; cats[p.categoria].stock+=p.stock; cats[p.categoria].valor+=p.stock*p.pCosto; });
-  document.getElementById('r-categorias').innerHTML = Object.entries(cats).map(([k,v])=>`
+  prods.forEach(p=>{ if(!cats[p.Categoría]) cats[p.Categoría]={count:0,stock:0,valor:0}; cats[p.Categoría].count++; cats[p.Categoría].stock+=p.stock; cats[p.Categoría].valor+=p.stock*p.pCosto; });
+  document.getElementById('r-Categorías').innerHTML = Object.entries(cats).map(([k,v])=>`
     <tr><td>${k}</td><td class="font-mono">${v.count}</td><td class="font-mono">${v.stock}</td><td class="font-mono text-accent">S/ ${fmt(v.valor)}</td></tr>`).join('');
 
   // Por marca (ventas)
@@ -1192,7 +1192,7 @@ function renderReportes() {
 function exportCSV() {
   const prods = state.productos.filter(p=>p.activo);
   const rows  = [['Código','Nombre','Categoría','Marca','Stock','P.Costo','P.Venta','Valor Total']];
-  prods.forEach(p=>rows.push([p.codigo,p.nombre,p.categoria,p.marca,p.stock,p.pCosto,p.pVenta,(p.stock*p.pCosto).toFixed(2)]));
+  prods.forEach(p=>rows.push([p.codigo,p.nombre,p.Categoría,p.marca,p.stock,p.pCosto,p.pVenta,(p.stock*p.pCosto).toFixed(2)]));
   const csv  = rows.map(r=>r.join(',')).join('\n');
   const blob = new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
   const url  = URL.createObjectURL(blob);
@@ -1232,8 +1232,8 @@ const origOpenModal = openModal;
 window.openModal = function(id) {
   if (id==='modal-producto') {
     if (!document.getElementById('mp-id').value) {
-      clearForm(['mp-codigo','mp-nombre','mp-marca','mp-stock','mp-stock-min','mp-pcosto','mp-pventa','mp-descripcion']);
-      document.getElementById('mp-categoria').value='Celulares';
+      clearForm(['mp-codigo','mp-nombre','mp-marca','mp-stock','mp-stock-min','mp-pcosto','mp-pventa','mp-Descripción']);
+      document.getElementById('mp-Categoría').value='Celulares';
       document.getElementById('mp-title').textContent='Nuevo Producto';
     }
   }
