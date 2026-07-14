@@ -1,16 +1,16 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TecnoCell S.A.C. â€” GestiÃ³n de Inventario</title>
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=2">
 </head>
 <body>
 
 
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• LOGIN â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â•  LOGIN â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â•  -->
 <div id="login-screen">
   <div class="login-box">
     <div class="login-logo">âš¡ TECNOCELL S.A.C.</div>
@@ -18,13 +18,13 @@
     <p class="login-sub">Sistema de GestiÃ³n de Inventario</p>
     <input type="text" id="login-user" placeholder="Usuario" autocomplete="off">
     <input type="password" id="login-pass" placeholder="ContraseÃ±a">
-    <p class="login-error" id="login-error">âŒ Usuario o contraseÃ±a incorrectos</p>
+    <p class="login-error" id="login-error">â Œ Usuario o contraseÃ±a incorrectos</p>
     <button class="login-btn" onclick="doLogin()">INGRESAR AL SISTEMA</button>
     <p class="login-hint">usuario <span>admin</span> Â· contraseÃ±a <span>1234</span></p>
   </div>
 </div>
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• APP â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â•  APP â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â•  -->
 <div id="app">
 
   <!-- OVERLAY MÃ“VIL -->
@@ -56,7 +56,7 @@
         <span class="nav-icon">ðŸ‘¥</span> Clientes
       </div>
       <div class="nav-item" onclick="showPage('proveedores')" id="nav-proveedores">
-        <span class="nav-icon">ðŸ¢</span> Proveedores
+        <span class="nav-icon">ðŸ ¢</span> Proveedores
       </div>
       <div class="nav-item" onclick="showPage('usuarios')" id="nav-usuarios" data-rol-required="Administrador">
         <span class="nav-icon">ðŸ‘¤</span> Usuarios
@@ -77,7 +77,7 @@
           <div class="user-role" id="sf-role">Admin</div>
         </div>
         <button class="logout-btn" onclick="openMiPerfil()" title="Mi Perfil" style="font-size:15px">ðŸ‘¤</button>
-        <button class="logout-btn" onclick="doLogout()" title="Cerrar sesiÃ³n">â</button>
+        <button class="logout-btn" onclick="doLogout()" title="Cerrar sesiÃ³n">â  </button>
       </div>
     </div>
   </aside>
@@ -100,7 +100,7 @@
 
     <div class="content">
 
-      <!-- â•â•â•â•â•â• DASHBOARD â•â•â•â•â•â• -->
+      <!-- â• â• â• â• â• â•  DASHBOARD â• â• â• â• â• â•  -->
       <div id="page-dashboard">
         <div class="stats-grid">
           <div class="stat-card c1">
@@ -110,7 +110,7 @@
             <div class="stat-sub">En inventario</div>
           </div>
           <div class="stat-card c2">
-            <div class="stat-icon">âš ï¸</div>
+            <div class="stat-icon">âš ï¸ </div>
             <div class="stat-label">Stock Bajo</div>
             <div class="stat-val" id="s-bajo">0</div>
             <div class="stat-sub">Requieren reposiciÃ³n</div>
@@ -140,7 +140,7 @@
           </div>
           <div class="section-card">
             <div class="section-header">
-              <span class="section-title">âš ï¸ Stock Bajo</span>
+              <span class="section-title">âš ï¸  Stock Bajo</span>
             </div>
             <table class="tbl">
               <thead><tr><th>Producto</th><th>Stock</th><th>MÃ­nimo</th><th>AcciÃ³n</th></tr></thead>
@@ -150,10 +150,10 @@
         </div>
       </div>
 
-      <!-- â•â•â•â•â•â• PRODUCTOS â•â•â•â•â•â• -->
+      <!-- â• â• â• â• â• â•  PRODUCTOS â• â• â• â• â• â•  -->
       <div id="page-productos" class="hidden">
         <div class="toolbar">
-          <input type="text" class="search-input" placeholder="ðŸ” Buscar producto..." oninput="renderProductos(this.value)">
+          <input type="text" class="search-input" placeholder="ðŸ”  Buscar producto..." oninput="renderProductos(this.value)">
           <select class="sel" onchange="renderProductos()" id="filtro-cat">
             <option value="">Todas las categorÃ­as</option>
             <option>Celulares</option>
@@ -172,7 +172,7 @@
         </div>
       </div>
 
-      <!-- â•â•â•â•â•â• ENTRADAS â•â•â•â•â•â• -->
+      <!-- â• â• â• â• â• â•  ENTRADAS â• â• â• â• â• â•  -->
       <div id="page-entradas" class="hidden">
         <div class="toolbar">
           <button class="btn btn-primary" onclick="openModal('modal-entrada')">+ Registrar Entrada</button>
@@ -185,7 +185,7 @@
         </div>
       </div>
 
-      <!-- â•â•â•â•â•â• SALIDAS â•â•â•â•â•â• -->
+      <!-- â• â• â• â• â• â•  SALIDAS â• â• â• â• â• â•  -->
       <div id="page-salidas" class="hidden">
         <div class="toolbar">
           <button class="btn btn-primary" onclick="openModal('modal-salida')">+ Registrar Salida</button>
@@ -198,10 +198,10 @@
         </div>
       </div>
 
-      <!-- â•â•â•â•â•â• MOVIMIENTOS â•â•â•â•â•â• -->
+      <!-- â• â• â• â• â• â•  MOVIMIENTOS â• â• â• â• â• â•  -->
       <div id="page-movimientos" class="hidden">
         <div class="toolbar">
-          <input type="text" class="search-input" placeholder="ðŸ” Buscar..." oninput="renderMovimientos(this.value)">
+          <input type="text" class="search-input" placeholder="ðŸ”  Buscar..." oninput="renderMovimientos(this.value)">
           <select class="sel" id="filtro-tipo-mov" onchange="renderMovimientos()">
             <option value="">Todos los tipos</option>
             <option>Entrada</option>
@@ -216,10 +216,10 @@
         </div>
       </div>
 
-      <!-- â•â•â•â•â•â• CLIENTES â•â•â•â•â•â• -->
+      <!-- â• â• â• â• â• â•  CLIENTES â• â• â• â• â• â•  -->
       <div id="page-clientes" class="hidden">
         <div class="toolbar">
-          <input type="text" class="search-input" placeholder="ðŸ” Buscar cliente..." oninput="renderClientes(this.value)">
+          <input type="text" class="search-input" placeholder="ðŸ”  Buscar cliente..." oninput="renderClientes(this.value)">
           <button class="btn btn-primary" onclick="openModal_Cliente_new()">+ Nuevo Cliente</button>
         </div>
         <div class="section-card">
@@ -230,10 +230,10 @@
         </div>
       </div>
 
-      <!-- â•â•â•â•â•â• PROVEEDORES â•â•â•â•â•â• -->
+      <!-- â• â• â• â• â• â•  PROVEEDORES â• â• â• â• â• â•  -->
       <div id="page-proveedores" class="hidden">
         <div class="toolbar">
-          <input type="text" class="search-input" placeholder="ðŸ” Buscar proveedor..." oninput="renderProveedores(this.value)">
+          <input type="text" class="search-input" placeholder="ðŸ”  Buscar proveedor..." oninput="renderProveedores(this.value)">
           <button class="btn btn-primary" onclick="openModal('modal-proveedor')">+ Nuevo Proveedor</button>
         </div>
         <div class="section-card">
@@ -244,10 +244,10 @@
         </div>
       </div>
 
-      <!-- â•â•â•â•â•â• USUARIOS â•â•â•â•â•â• -->
+      <!-- â• â• â• â• â• â•  USUARIOS â• â• â• â• â• â•  -->
       <div id="page-usuarios" class="hidden">
         <div class="toolbar">
-          <input type="text" class="search-input" id="search-usuarios" placeholder="ðŸ” Buscar usuario..." oninput="renderUsuarios(this.value)">
+          <input type="text" class="search-input" id="search-usuarios" placeholder="ðŸ”  Buscar usuario..." oninput="renderUsuarios(this.value)">
           <select class="sel" id="filtro-rol-usuario" onchange="renderUsuarios()">
             <option value="">Todos los roles</option>
             <option>Administrador</option>
@@ -264,7 +264,7 @@
         </div>
       </div>
 
-      <!-- â•â•â•â•â•â• ALERTAS â•â•â•â•â•â• -->
+      <!-- â• â• â• â• â• â•  ALERTAS â• â• â• â• â• â•  -->
       <div id="page-alertas" class="hidden">
         <div class="section-card">
           <div class="section-header">
@@ -277,7 +277,7 @@
         </div>
       </div>
 
-      <!-- â•â•â•â•â•â• REPORTES â•â•â•â•â•â• -->
+      <!-- â• â• â• â• â• â•  REPORTES â• â• â• â• â• â•  -->
       <div id="page-reportes" class="hidden">
         <div class="stats-grid">
           <div class="stat-card c1">
@@ -318,7 +318,7 @@
             </table>
           </div>
           <div class="section-card">
-            <div class="section-header"><span class="section-title">ðŸ· Ventas por Marca</span></div>
+            <div class="section-header"><span class="section-title">ðŸ · Ventas por Marca</span></div>
             <table class="tbl">
               <thead><tr><th>Marca</th><th>Und. Vendidas</th><th>Total S/</th></tr></thead>
               <tbody id="r-marcas"></tbody>
@@ -338,7 +338,7 @@
   </main>
 </div><!-- /app -->
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• MODALES â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â•  MODALES â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â•  -->
 
 <!-- Modal Producto -->
 <div class="modal-overlay hidden" id="modal-producto">
@@ -565,7 +565,7 @@
           <label>DNI / RUC *</label>
           <div style="display:flex;gap:8px">
             <input type="text" id="mcli-doc" placeholder="NÃºmero de documento" maxlength="11" style="flex:1">
-            <button type="button" class="btn btn-primary" onclick="buscarDocCliente()" title="Buscar en RENIEC/SUNAT" style="padding:0 14px">ðŸ”</button>
+            <button type="button" class="btn btn-primary" onclick="buscarDocCliente()" title="Buscar en RENIEC/SUNAT" style="padding:0 14px">ðŸ” </button>
           </div>
         </div>
         <div class="form-group">
@@ -645,14 +645,14 @@
           <label>ContraseÃ±a * <span style="color:var(--text3);font-size:10px">(mÃ­n. 4 caracteres)</span></label>
           <div style="position:relative">
             <input type="password" id="mu-pass" placeholder="ContraseÃ±a" style="width:100%;padding-right:40px">
-            <button type="button" onclick="togglePassVis('mu-pass','mu-pass-eye')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px" id="mu-pass-eye">ðŸ‘</button>
+            <button type="button" onclick="togglePassVis('mu-pass','mu-pass-eye')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px" id="mu-pass-eye">ðŸ‘ </button>
           </div>
         </div>
         <div class="form-group" id="mu-pass2-group">
           <label>Confirmar ContraseÃ±a *</label>
           <div style="position:relative">
             <input type="password" id="mu-pass2" placeholder="Repetir contraseÃ±a" style="width:100%;padding-right:40px">
-            <button type="button" onclick="togglePassVis('mu-pass2','mu-pass2-eye')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px" id="mu-pass2-eye">ðŸ‘</button>
+            <button type="button" onclick="togglePassVis('mu-pass2','mu-pass2-eye')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px" id="mu-pass2-eye">ðŸ‘ </button>
           </div>
         </div>
       </div>
@@ -689,7 +689,7 @@
 
       <!-- Tabs -->
       <div style="display:flex;gap:4px;margin-bottom:20px;background:var(--bg2);border-radius:10px;padding:4px">
-        <button id="tab-datos" onclick="switchPerfilTab('datos')" style="flex:1;padding:8px;border:none;border-radius:8px;background:var(--card);color:var(--text);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s">ðŸ“ Mis Datos</button>
+        <button id="tab-datos" onclick="switchPerfilTab('datos')" style="flex:1;padding:8px;border:none;border-radius:8px;background:var(--card);color:var(--text);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s">ðŸ“  Mis Datos</button>
         <button id="tab-pass" onclick="switchPerfilTab('pass')" style="flex:1;padding:8px;border:none;border-radius:8px;background:transparent;color:var(--text2);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s">ðŸ”‘ Cambiar ContraseÃ±a</button>
       </div>
 
@@ -733,21 +733,21 @@
             <label>ContraseÃ±a Actual *</label>
             <div style="position:relative">
               <input type="password" id="perfil-pass-actual" placeholder="ContraseÃ±a actual" style="width:100%;padding-right:40px">
-              <button type="button" onclick="togglePassVis('perfil-pass-actual','eye-actual')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px" id="eye-actual">ðŸ‘</button>
+              <button type="button" onclick="togglePassVis('perfil-pass-actual','eye-actual')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px" id="eye-actual">ðŸ‘ </button>
             </div>
           </div>
           <div class="form-group">
             <label>Nueva ContraseÃ±a *</label>
             <div style="position:relative">
               <input type="password" id="perfil-pass-nueva" placeholder="Nueva contraseÃ±a" style="width:100%;padding-right:40px">
-              <button type="button" onclick="togglePassVis('perfil-pass-nueva','eye-nueva')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px" id="eye-nueva">ðŸ‘</button>
+              <button type="button" onclick="togglePassVis('perfil-pass-nueva','eye-nueva')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px" id="eye-nueva">ðŸ‘ </button>
             </div>
           </div>
           <div class="form-group">
             <label>Confirmar Nueva ContraseÃ±a *</label>
             <div style="position:relative">
               <input type="password" id="perfil-pass-confirmar" placeholder="Repetir contraseÃ±a" style="width:100%;padding-right:40px">
-              <button type="button" onclick="togglePassVis('perfil-pass-confirmar','eye-confirmar')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px" id="eye-confirmar">ðŸ‘</button>
+              <button type="button" onclick="togglePassVis('perfil-pass-confirmar','eye-confirmar')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px" id="eye-confirmar">ðŸ‘ </button>
             </div>
           </div>
         </div>
@@ -771,7 +771,6 @@
 <div id="toast" class="toast hidden"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js"></script>
+<script src="app.js?v=2"></script>
 </body>
 </html>
-
